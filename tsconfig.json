@@ -1,0 +1,11 @@
+// filepath: c:\Users\Ryan936769\Documents\Pokerole-Pokedex\tsconfig.json
+{
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "commonjs",
+    "target": "es6",
+    "strict": true
+  },
+  "include": ["src"]
+}

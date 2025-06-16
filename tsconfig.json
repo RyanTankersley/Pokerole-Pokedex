@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src",
-    "module": "commonjs",
+    "module": "esnext", // Changed from "commonjs" to "esnext"
     "target": "es6",
     "strict": true
   },

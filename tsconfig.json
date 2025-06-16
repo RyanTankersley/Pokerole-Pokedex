@@ -5,7 +5,8 @@
     "rootDir": "src",
     "module": "esnext", // Changed from "commonjs" to "esnext"
     "target": "es6",
-    "strict": true
+    "strict": true,
+    "lib": ["es2016", "dom"]
   },
   "include": ["src"]
 }

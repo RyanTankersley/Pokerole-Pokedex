@@ -1,0 +1,67 @@
+[{
+    "Name": "Zeltrion",
+    "Pokemon": [{
+        "Number": 25,
+        "DexID": "0025"
+    },{
+        "Number": 7,
+        "DexID": "0007"
+    },{
+        "Number": 56,
+        "DexID": "0056"
+    },{
+        "Number": 443,
+        "DexID": "0443"
+    },{
+        "Number": 66,
+        "DexID": "0066"
+    },{
+        "Number": 393,
+        "DexID": "0393"
+    },{
+        "Number": 10,
+        "DexID": "0010"
+    },{
+        "Number": 16,
+        "DexID": "0016"
+    },{
+        "Number": 27,
+        "DexID": "0027"
+    },{
+        "Number": 13,
+        "DexID": "0013"
+    },{
+        "Number": 54,
+        "DexID": "0054"
+    }]
+},{
+    "Name": "Liko",
+    "Pokemon": [{
+        "Number": 133,
+        "DexID": "0133"
+    },{
+        "Number": 19,
+        "DexID": "0019"
+    },{
+        "Number": 393,
+        "DexID": "0393"
+    },{
+        "Number": 46,
+        "DexID": "0046"
+    },{
+        "Number": 744,
+        "DexID": "0744"
+    },{
+        "Number": 16,
+        "DexID": "0016"
+    },{
+        "Number": 56,
+        "DexID": "0056"
+    },{
+        "Number": 54,
+        "DexID": "0054"
+    },{
+        "Number": 656,
+        "DexID": "0656"
+    }]
+}]

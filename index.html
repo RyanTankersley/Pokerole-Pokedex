@@ -99,6 +99,30 @@
         .pokemon-card img.silhouette {
             filter: brightness(0) contrast(200%);
         }
+        .trainer-btn-group {
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.trainer-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1.5px solid #6366f1;
+  background: #fff;
+  color: #6366f1;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1em;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(99,102,241,0.08);
+}
+.trainer-btn.active,
+.trainer-btn:hover {
+  background: #6366f1;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.12);
+}
         @media (max-width: 700px) {
             .pokedex {
                 gap: 18px;
@@ -123,6 +147,7 @@
     <header>
         <h1>Pokerole Pokedex</h1>
     </header>
+    <div class="trainer-list" id="trainer-list"></div>
     <div class="pokedex" id="pokedex"></div>
 <script type="module" src="dist/index.js"></script>
 <script type="module"  src="dist/pokemon.js"></script>

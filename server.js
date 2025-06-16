@@ -5,6 +5,7 @@ const app = express();
 
 const dataDir = path.join(__dirname, 'Version20');
 const pokedexDir = path.join(dataDir, 'Pokedex');
+const campaignDir = path.join(__dirname, 'campaign');
 
 const imageDir = path.join(__dirname, 'images');
 const bookSpritesDir = path.join(imageDir, 'BookSprites');
@@ -49,6 +50,22 @@ app.get('/pokedex-list', (req, res) => {
                 }
             });
         });
+    });
+});
+
+app.get('/trainer-list', (req, res) => {
+    const trainerDataPath = path.join(campaignDir, 'trainerdata.json');
+    console.log(trainerDataPath);
+    fs.readFile(trainerDataPath, 'utf8', (err, data) => {
+        if (err) {
+            return res.status(500).send('Error reading trainer data');
+        }
+        try {
+            const parsed = JSON.parse(data);
+            res.json(parsed);
+        } catch (e) {
+            res.status(500).send('Error parsing trainer data');
+        }
     });
 });
 

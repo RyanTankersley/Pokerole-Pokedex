@@ -1,0 +1,24 @@
+/* Print optimization for two cards per row and reduced margins */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0.3in;
+  }
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #pokedex {
+    column-count: 2;
+    column-gap: 0.2in;
+  }
+  .pokemon-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin: 0 0 0.2in 0;
+    width: 97% !important;
+    box-sizing: border-box;
+    box-shadow: none !important;
+    border: 1px solid #bbb !important;
+  }
+}

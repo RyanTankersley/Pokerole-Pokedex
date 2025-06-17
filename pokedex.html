@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pokédex</title>
+  <link rel="stylesheet" href="style.css"><!-- If you have a shared CSS file -->
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f8fafc; margin: 0; }
+    .pokedex { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; margin: 32px auto; max-width: 1200px; }
+    .pokemon-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(99,102,241,0.06); padding: 18px; width: 200px; text-align: center; }
+    .pokemon-card img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <h1 style="text-align:center;color:#6366f1;">Pokédex</h1>
+  <div class="pokedex" id="pokedex"></div>
+  <script type="module" src="dist/pokedex.js"></script>
+</body>
+</html>

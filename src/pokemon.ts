@@ -2,8 +2,8 @@ export interface Pokemon {
     Number:              number;
     DexID:               string;
     Name:                string;
-    Type1:               Type;
-    Type2:               Type;
+    Type1:               PokemonType;
+    Type2:               PokemonType;
     BaseHP:              number;
     Strength:            number;
     MaxStrength:         number;
@@ -119,7 +119,7 @@ export enum RecommendedRank {
     Starter = "Starter",
 }
 
-export enum Type {
+export enum PokemonType {
     Bug = "Bug",
     Dark = "Dark",
     Dragon = "Dragon",
@@ -145,3 +145,25 @@ export interface Weight {
     Kilograms: number;
     Pounds:    number;
 }
+
+export const PokemonTypeColor: Record<PokemonType, string> = {
+    [PokemonType.Bug]: "#A7B723",
+    [PokemonType.Dark]: "#75574C",
+    [PokemonType.Dragon]: "#7037FF",
+    [PokemonType.Electric]: "#F9CF30",
+    [PokemonType.Empty]: "#A8A77A",
+    [PokemonType.Fairy]: "#E69EAC",
+    [PokemonType.Fighting]: "#C12239",
+    [PokemonType.Fire]: "#F57D31",
+    [PokemonType.Flying]: "#A891EC",
+    [PokemonType.Ghost]: "#70559B",
+    [PokemonType.Grass]: "#74CB48",
+    [PokemonType.Ground]: "#DEC16B",
+    [PokemonType.Ice]: "#9AD6DF",
+    [PokemonType.Normal]: "#AAA67F",
+    [PokemonType.Poison]: "#A43E9E",
+    [PokemonType.Psychic]: "#FB5584",
+    [PokemonType.Rock]: "#B69E31",
+    [PokemonType.Steel]: "#B7B9D0",
+    [PokemonType.Water]: "#6493EB",
+};

@@ -11,8 +11,33 @@
     .pokemon-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(99,102,241,0.06); padding: 18px; width: 200px; text-align: center; }
     .pokemon-card img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 12px; }
     #style-toggle { margin: 16px auto 0 auto; display: block; }
+    .toggle-group {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin: 18px 0 0 0;
+    }
+    .toggle-group label {
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 2px solid #6366f1;
+      transition: background 0.2s, color 0.2s, border 0.2s;
+      user-select: none;
+    }
+    .toggle-group input[type="radio"] {
+      display: none;
+    }
+    .toggle-group input[type="radio"]:checked + label {
+      background: #6366f1;
+      color: #fff;
+      border-color: #3730a3;
+    }
     @media print {
-      #style-toggle {
+      #style-toggle, #toggle-details-group {
         display: none !important;
       }
     }
@@ -21,8 +46,39 @@
 <body>
   <h1 id="pokedex-header" style="text-align:center;color:#6366f1;">Pokédex</h1>
   <button id="style-toggle">Switch to Print Style</button>
+  <div class="toggle-group" id="toggle-details-group">
+    <input type="radio" id="show-all" name="details-toggle" checked>
+    <label for="show-all">Show All Pokémon Details</label>
+    <input type="radio" id="show-trainer" name="details-toggle">
+    <label for="show-trainer">Show Only Trainer Pokémon Details</label>
+  </div>
+  <div style="display:flex;justify-content:center;gap:18px;margin:18px 0 0 0;">
+    <select id="type-filter" style="padding:6px 12px;border-radius:8px;border:1.5px solid #6366f1;font-size:1em;">
+      <option value="">All Types</option>
+      <option value="Bug">Bug</option>
+      <option value="Dark">Dark</option>
+      <option value="Dragon">Dragon</option>
+      <option value="Electric">Electric</option>
+      <option value="Fairy">Fairy</option>
+      <option value="Fighting">Fighting</option>
+      <option value="Fire">Fire</option>
+      <option value="Flying">Flying</option>
+      <option value="Ghost">Ghost</option>
+      <option value="Grass">Grass</option>
+      <option value="Ground">Ground</option>
+      <option value="Ice">Ice</option>
+      <option value="Normal">Normal</option>
+      <option value="Poison">Poison</option>
+      <option value="Psychic">Psychic</option>
+      <option value="Rock">Rock</option>
+      <option value="Steel">Steel</option>
+      <option value="Water">Water</option>
+    </select>
+    <input id="name-search" type="text" placeholder="Search by name..." style="padding:6px 12px;border-radius:8px;border:1.5px solid #6366f1;font-size:1em;width:220px;">
+  </div>
   <div class="pokedex" id="pokedex"></div>
   <script type="module" src="dist/pokedex.js"></script>
+  <script type="module" src="dist/domComponents.js"></script>
   <script>
     const normalStyle = document.getElementById('normal-style');
     const printStyle = document.getElementById('print-style');

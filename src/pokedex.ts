@@ -7,7 +7,7 @@ fetch('/pokedex-list')
     if (!pokedexDiv) return;
     pokedexDiv.innerHTML = '';
     // Only show the first 10 Pokémon
-    pokemonArray.slice(0, 10).forEach((pokemon: Pokemon) => {
+    pokemonArray.slice(1, 10).forEach((pokemon: Pokemon) => {
       let name = pokemon.Name || 'Unknown';
       let displayName = name;
       const match = name.match(/^([^(]+)(\s*\(.*\))$/);
@@ -103,6 +103,7 @@ fetch('/pokedex-list')
       const card = document.createElement('div');
       card.className = 'pokemon-card no-break';
       card.style.width = '340px'; // Reduced width for a skinnier card
+      card.style.minHeight = '420px';
       card.innerHTML = `
         <!-- Header spans the whole card -->
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;width:100%;">

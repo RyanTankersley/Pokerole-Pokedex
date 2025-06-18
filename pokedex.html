@@ -11,10 +11,15 @@
     .pokemon-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(99,102,241,0.06); padding: 18px; width: 200px; text-align: center; }
     .pokemon-card img { width: 120px; height: 120px; object-fit: contain; margin-bottom: 12px; }
     #style-toggle { margin: 16px auto 0 auto; display: block; }
+    @media print {
+      #style-toggle {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1 style="text-align:center;color:#6366f1;">Pokédex</h1>
+  <h1 id="pokedex-header" style="text-align:center;color:#6366f1;">Pokédex</h1>
   <button id="style-toggle">Switch to Print Style</button>
   <div class="pokedex" id="pokedex"></div>
   <script type="module" src="dist/pokedex.js"></script>
@@ -73,6 +78,10 @@ body.print-mode {
     display: flex !important;
     flex-direction: column !important;
     padding: 10px !important;
+  }
+  body.print-mode #pokedex-header,
+  body.print-mode #style-toggle {
+    display: none !important;
   }
   </style>
   <script>

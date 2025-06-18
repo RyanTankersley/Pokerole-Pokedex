@@ -55,7 +55,6 @@ app.get('/pokedex-list', (req, res) => {
 
 app.get('/trainer-list', (req, res) => {
     const trainerDataPath = path.join(campaignDir, 'trainerdata.json');
-    console.log(trainerDataPath);
     fs.readFile(trainerDataPath, 'utf8', (err, data) => {
         if (err) {
             return res.status(500).send('Error reading trainer data');

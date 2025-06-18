@@ -76,8 +76,26 @@ fetch('/pokedex-list')
       const moves = pokemon.Moves?.map(m => m.Name).filter(Boolean) || [];
       const movesHtml = moves.length
         ? `<div style="margin-top:10px;">
-              <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                ${moves.map(m => `<span style="background:#e0e7ff;border-radius:12px;padding:3px 14px;font-size:0.97em;color:#3730a3;box-shadow:0 1px 2px #eee;display:inline-block;margin-bottom:2px;">${m}</span>`).join('')}
+              <div style="
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2px;
+                border-collapse: collapse;
+                ">
+                ${moves.map(m => `
+                  <span style="
+                    background: #e0e7ff;
+                    border-radius: 4px;
+                    padding: 2px 4px;
+                    font-size: 0.65em;
+                    color: #3730a3;
+                    box-shadow: none;
+                    display: block;
+                    text-align: center;
+                    border: 1px solid #c7d2fe;
+                    margin: 0;
+                  ">${m}</span>
+                `).join('')}
               </div>
            </div>`
         : '';
@@ -87,7 +105,7 @@ fetch('/pokedex-list')
       card.style.width = '340px'; // Reduced width for a skinnier card
       card.innerHTML = `
         <!-- Header spans the whole card -->
-        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;width:100%;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;width:100%;">
           <div style="font-weight:bold;color:#6366f1;font-size:1.1em;min-width:36px;text-align:right;">
             ${dexId ? `#${dexId}` : ''}
           </div>
@@ -103,9 +121,9 @@ fetch('/pokedex-list')
               })()
             }
           </div>
-          <div style="min-width:90px;">
-            ${typeHtml}
-          </div>
+        </div>
+        <div style="width:100%;display:flex;justify-content:center;margin-bottom:2px;margin-top:-4px;">
+          ${typeHtml}
         </div>
         <div style="display:flex;align-items:flex-start;">
           <div style="flex:1;min-width:120px;">
@@ -113,7 +131,7 @@ fetch('/pokedex-list')
             ${hwHtml}
           </div>
           <div style="align-self:flex-start;flex:1;min-width:100px;margin-left:12px;">
-            <div style="font-size:0.96em;color:#333;min-height:48px;">
+            <div style="font-size:0.96em;color:#333;min-height:48px;text-align:left;">
               ${dexDescription}
             </div>
           </div>

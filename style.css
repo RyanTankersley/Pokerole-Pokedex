@@ -1,0 +1,60 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f8fafc;
+  margin: 0;
+}
+.pokedex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  margin: 32px auto;
+  max-width: 1200px;
+}
+.pokemon-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.06);
+  padding: 18px;
+  width: 200px;
+  text-align: center;
+}
+.pokemon-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+#style-toggle {
+  margin: 16px auto 0 auto;
+  display: block;
+}
+.toggle-group {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 18px 0 0 0;
+}
+.toggle-group label {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 2px solid #6366f1;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  user-select: none;
+}
+.toggle-group input[type="radio"] {
+  display: none;
+}
+.toggle-group input[type="radio"]:checked + label {
+  background: #6366f1;
+  color: #fff;
+  border-color: #3730a3;
+}
+@media print {
+  #style-toggle, #toggle-details-group {
+    display: none !important;
+  }
+}

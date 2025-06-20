@@ -28,7 +28,7 @@ fetch('/trainer-list')
         function renderCards(showTrainerOnly: boolean, typeFilter: string = '', nameFilter: string = '') {
           if (!pokedexDiv) return;
           pokedexDiv.innerHTML = '';
-          pokemonArray.forEach((pokemon: Pokemon) => {
+          pokemonArray.slice(1, pokemonArray.length).forEach((pokemon: Pokemon) => {
             const isTrainerPokemon = trainerDexIds.has(pokemon.DexID);
             let showDetails = true;
             if (showTrainerOnly && !isTrainerPokemon) showDetails = false;

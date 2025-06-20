@@ -1,3 +1,30 @@
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f8fafc;
+  margin: 0;
+}
+.pokedex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  justify-content: center;
+  margin: 32px auto;
+  max-width: 1200px;
+}
+.pokemon-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(99,102,241,0.06);
+  padding: 18px;
+  width: 200px;
+  text-align: center;
+}
+.pokemon-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+
 @media print {
   #style-toggle, #toggle-details-group {
     display: none !important;
@@ -14,7 +41,7 @@ body.print-mode {
 body {
   background-color: white !important;
 }
-body.print-mode #pokedex {
+body #pokedex {
   display: grid !important;
   grid-template-columns: 50% 50% !important;
   gap: 0.2in !important;
@@ -24,7 +51,7 @@ body.print-mode #pokedex {
   padding: 0 0.1in !important;
   background-color: white !important;
 }
-body.print-mode .pokemon-card {
+body .pokemon-card {
   break-inside: avoid;
   page-break-inside: avoid;
   margin: 0 !important;
@@ -37,8 +64,4 @@ body.print-mode .pokemon-card {
   display: flex !important;
   flex-direction: column !important;
   padding: 10px !important;
-}
-body.print-mode #pokedex-header,
-body.print-mode #style-toggle {
-  display: none !important;
 }

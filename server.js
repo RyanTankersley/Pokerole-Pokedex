@@ -9,9 +9,11 @@ const campaignDir = path.join(__dirname, 'campaign');
 
 const imageDir = path.join(__dirname, 'images');
 const bookSpritesDir = path.join(imageDir, 'BookSprites');
+const itemSpritesDir = path.join(imageDir, 'ItemSprites');
 
 app.use(express.static(__dirname)); // Serves static files (HTML, JS, JSON, etc.)
 app.use('/pokedex-images', express.static(bookSpritesDir)); // Serve images at /pokedex-images
+app.use('/item-images', express.static(itemSpritesDir)); // Serve images at /pokedex-images
 
 app.get('/pokedex-list', (req, res) => {
     fs.readdir(pokedexDir, (err, files) => {
@@ -66,6 +68,38 @@ app.get('/trainer-list', (req, res) => {
             res.status(500).send('Error parsing trainer data');
         }
     });
+});
+
+/**
+ * Returns the absolute path to the item sprite image file for a given number 1-6.
+ * @param {number} num - A number from 1 to 6.
+ * @returns {string|null} The absolute file path to the image, or null if invalid.
+ */
+function getRecommendedRankItemSpriteFileByNumber(num) {
+  if (typeof num !== 'number' || num < 1 || num > 6) return null;
+
+  let fileName = '';
+  switch(num) {
+    case 1: fileName = 'light-ball.png'; break; // Potion
+    case 2: fileName = 'pokeball.png'; break; // Super Potion
+    case 3: fileName = 'greatball.png'; break; // Hyper Potion
+    case 4: fileName = 'ultraball.png'; break; // Max Potion
+    case 5: fileName = 'iron-ball.png'; break; // Full Restore
+    case 6: fileName = 'masterball.png'; break; // Revive
+    default: return null;
+}
+  return path.join(itemSpritesDir, fileName);
+}
+
+// Add this route to serve the item sprite image
+app.get('/recommended-rank-image/:num', (req, res) => {
+  const num = Number(req.params.num);
+  const filePath = getRecommendedRankItemSpriteFileByNumber(num);
+  if (filePath) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).send('Not found');
+  }
 });
 
 app.listen(3000, () => {

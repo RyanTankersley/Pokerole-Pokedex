@@ -1,4 +1,4 @@
-import { Pokemon, PokemonType, PokemonTypeColor } from './pokemon.js';
+import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRankNumber } from './pokemon.js';
 /**
  * Creates a DOM element for a Pokémon card.
  * @param pokemon The Pokémon object.
@@ -102,6 +102,14 @@ export function createPokemonCard(
        </div>`
     : '';
 
+  // Recommended Rank Item Sprite
+  let rankImgHtml = '';
+  if (pokemon.RecommendedRank && RecommendedRankNumber[pokemon.RecommendedRank]) {
+    const rankNum = RecommendedRankNumber[pokemon.RecommendedRank];
+    // The server route returns the image file for the rank number
+    rankImgHtml = `<img src="/recommended-rank-image/${rankNum}" alt="Rank ${pokemon.RecommendedRank}" title="Recommended Rank: ${pokemon.RecommendedRank}" style="height:1.5em;width:1.5em;vertical-align:middle;margin-left:6px;margin-right:2px;">`;
+  }
+
   const card = document.createElement('div');
   card.className = 'pokemon-card no-break';
   card.style.width = '340px';
@@ -121,8 +129,8 @@ export function createPokemonCard(
   card.innerHTML = `
     <!-- Header spans the whole card -->
     <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:4px;width:100%;">
-      <div style="font-weight:bold;color:#6366f1;font-size:1.1em;min-width:36px;text-align:right;">
-        ${dexId ? `#${dexId}` : ''}
+      <div style="font-weight:bold;color:#6366f1;font-size:1.1em;min-width:36px;text-align:right;display:flex;align-items:center;">
+        ${dexId ? `#${dexId}` : ''}${rankImgHtml}
       </div>
       <div style="font-size:1.05em;text-align:center;">
         ${

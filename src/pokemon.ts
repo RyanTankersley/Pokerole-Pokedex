@@ -167,3 +167,12 @@ export const PokemonTypeColor: Record<PokemonType, string> = {
     [PokemonType.Steel]: "#60A1B8",
     [PokemonType.Water]: "#2980EF",
 };
+
+export const RecommendedRankNumber: Record<RecommendedRank, number> = {
+    [RecommendedRank.Starter]: 1,
+    [RecommendedRank.Beginner]: 2,
+    [RecommendedRank.Amateur]: 3,
+    [RecommendedRank.Ace]: 4,
+    [RecommendedRank.Pro]: 4,
+    [RecommendedRank.Master]: 6
+};

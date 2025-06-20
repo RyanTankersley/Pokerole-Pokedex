@@ -34,31 +34,13 @@ export function createPokemonCard(
 
   const typeHtml = `
     <div style="display:flex;justify-content:center;gap:8px;margin:8px 0;">
-      <span style="
-        display:inline-block;
-        min-width:60px;
-        padding:4px 12px;
-        border-radius:16px;
+      <span class="pokemon-type-badge" style="
         background:${type1Color};
-        color:#fff;
-        font-weight:bold;
-        font-size:0.98em;
-        text-align:center;
-        box-shadow:0 1px 4px rgba(99,102,241,0.08);
       ">${type1}</span>
       ${
         type2Color
-          ? `<span style="
-              display:inline-block;
-              min-width:60px;
-              padding:4px 12px;
-              border-radius:16px;
+          ? `<span class="pokemon-type-badge" style="
               background:${type2Color};
-              color:#fff;
-              font-weight:bold;
-              font-size:0.98em;
-              text-align:center;
-              box-shadow:0 1px 4px rgba(99,102,241,0.08);
             ">${type2}</span>`
           : ''
       }
@@ -78,25 +60,9 @@ export function createPokemonCard(
   const moves = pokemon.Moves?.map(m => m.Name).filter(Boolean) || [];
   const movesHtml = moves.length
     ? `<div style="margin-top:10px;">
-          <div style="
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2px;
-            border-collapse: collapse;
-            ">
+          <div class="moves-table">
             ${moves.map(m => `
-              <span style="
-                background: #e0e7ff;
-                border-radius: 4px;
-                padding: 2px 4px;
-                font-size: 0.65em;
-                color: #3730a3;
-                box-shadow: none;
-                display: block;
-                text-align: center;
-                border: 1px solid #c7d2fe;
-                margin: 0;
-              ">${m}</span>
+              <span class="moves-table-item">${m}</span>
             `).join('')}
           </div>
        </div>`

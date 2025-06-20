@@ -24,3 +24,122 @@ body {
   height: 120px;
   object-fit: contain;
 }
+
+.moves-table {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  border-collapse: collapse;
+            
+}
+
+.moves-table-item {
+  background: #e0e7ff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.65em;
+  color: #3730a3;
+  box-shadow: none;
+  display: block;
+  text-align: center;
+  border: 1px solid #c7d2fe;
+  margin: 0;
+}
+
+#pokedex-header {
+  text-align: center;
+  color: #6366f1;
+}
+
+#style-toggle {
+  display: block;
+  margin: 0 auto 18px auto;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1.5px solid #6366f1;
+  background: #fff;
+  color: #6366f1;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+#style-toggle:hover {
+  background: #6366f1;
+  color: #fff;
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+}
+
+.toggle-group input[type="radio"] {
+  accent-color: #6366f1;
+}
+
+.toggle-group label {
+  font-size: 1em;
+  color: #6366f1;
+  margin-right: 8px;
+}
+
+#type-filter,
+#name-search {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #6366f1;
+  font-size: 1em;
+}
+
+#name-search {
+  width: 220px;
+}
+
+body.print-mode {
+  background: #fff !important;
+}
+body.print-mode .pokemon-card {
+  box-shadow: none !important;
+  border: 1px solid #6366f1 !important;
+}
+body.print-mode #style-toggle,
+body.print-mode .toggle-group,
+body.print-mode #type-filter,
+body.print-mode #name-search {
+  display: none !important;
+}
+
+.pokemon-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.pokemon-type-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 8px;
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 2px;
+  min-width: 56px;
+  text-align: center;
+}
+
+.pokemon-card-details {
+  margin-top: 8px;
+  font-size: 0.98em;
+  color: #444;
+}
+
+.pokemon-card-footer {
+  margin-top: 10px;
+  font-size: 0.92em;
+  color: #6366f1;
+}

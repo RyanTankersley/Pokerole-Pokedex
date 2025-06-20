@@ -1,0 +1,29 @@
+#style-toggle {
+  margin: 16px auto 0 auto;
+  display: block;
+}
+.toggle-group {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 18px 0 0 0;
+}
+.toggle-group label {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 2px solid #6366f1;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  user-select: none;
+}
+.toggle-group input[type="radio"] {
+  display: none;
+}
+.toggle-group input[type="radio"]:checked + label {
+  background: #6366f1;
+  color: #fff;
+  border-color: #3730a3;
+}

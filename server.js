@@ -9,10 +9,12 @@ const campaignDir = path.join(__dirname, 'campaign');
 
 const imageDir = path.join(__dirname, 'images');
 const bookSpritesDir = path.join(imageDir, 'BookSprites');
+const shuffleTokenDir = path.join(imageDir, 'ShuffleTokens');
 const itemSpritesDir = path.join(imageDir, 'ItemSprites');
 
 app.use(express.static(__dirname)); // Serves static files (HTML, JS, JSON, etc.)
 app.use('/pokedex-images', express.static(bookSpritesDir)); // Serve images at /pokedex-images
+app.use('/pokedex-images-token', express.static(shuffleTokenDir)); // Serve images at /pokedex-image-token
 app.use('/item-images', express.static(itemSpritesDir)); // Serve images at /pokedex-images
 
 app.get('/pokedex-list', (req, res) => {

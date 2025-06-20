@@ -4,15 +4,21 @@
     <meta charset="UTF-8">
     <title>Pokerole Pokedex</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="public/print.css">
+    <link rel="stylesheet" href="public/style.css">
+    <link rel="stylesheet" href="public/trainers.css">
 </head>
 <body>
-    <header>
-        <h1>Pokerole Pokedex</h1>
-    </header>
-    <div class="trainer-list" id="trainer-list"></div>
-    <div class="pokedex" id="pokedex"></div>
+  <div id="modern-banner-header">
+    Pokerole Pokédex
+  </div>
+  <div class="toggle-group" id="image-style-toggle">
+    <input type="radio" id="full-art" name="img-style" value="full" checked>
+    <label for="full-art">Full Art</label>
+    <input type="radio" id="token-art" name="img-style" value="token">
+    <label for="token-art">Token</label>
+  </div>
+  <div class="trainer-list" id="trainer-list"></div>
+  <div class="pokedex" id="pokedex"></div>
 <script type="module" src="dist/index.js"></script>
 <script type="module"  src="dist/pokemon.js"></script>
 <script type="module"  src="dist/trainer.js"></script>

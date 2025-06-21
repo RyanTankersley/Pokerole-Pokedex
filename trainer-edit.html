@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit/Add Trainer - Pokerole Pokedex</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="public/style.css">
+  <link rel="stylesheet" href="public/trainers.css">
+  <style>
+    .trainer-form { max-width: 600px; margin: 32px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #e0e7ff; padding: 24px; }
+    .trainer-form label { font-weight: 600; display: block; margin-bottom: 6px; }
+    .trainer-form input[type="text"] { width: 100%; padding: 8px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #c7d2fe; }
+    .pokemon-search-results { max-height: 220px; overflow-y: auto; border: 1px solid #e0e7ff; border-radius: 8px; margin-bottom: 12px; background: #f8fafc; }
+    .pokemon-search-item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; cursor: pointer; border-bottom: 1px solid #e0e7ff; }
+    .pokemon-search-item:last-child { border-bottom: none; }
+    .pokemon-search-item:hover { background: #e0e7ff; }
+    .selected-pokemon-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .selected-pokemon-item { background: #6366f1; color: #fff; border-radius: 8px; padding: 4px 10px; display: flex; align-items: center; gap: 6px; }
+    .remove-poke-btn { background: none; border: none; color: #fff; font-size: 1.1em; cursor: pointer; }
+    .save-btn { background: #6366f1; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 1.1em; cursor: pointer; }
+    .save-btn:hover { background: #4f46e5; }
+  </style>
+</head>
+<body>
+  <div class="trainer-form">
+    <h2>Add or Edit Trainer</h2>
+    <label for="trainer-name">Trainer Name</label>
+    <input type="text" id="trainer-name" placeholder="Enter trainer name">
+    <label for="pokemon-search">Search Pokémon (by name or number)</label>
+    <input type="text" id="pokemon-search" placeholder="e.g. Pikachu or 25">
+    <div class="pokemon-search-results" id="pokemon-search-results"></div>
+    <label>Selected Pokémon</label>
+    <div class="selected-pokemon-list" id="selected-pokemon-list"></div>
+    <button class="save-btn" id="save-trainer">Save Trainer</button>
+    <div id="save-status" style="margin-top:12px;font-size:1em;"></div>
+  </div>
+  <script type="module" src="dist/trainer-edit.js"></script>
+</body>
+</html>

@@ -84,6 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const rankInput = document.getElementById('trainer-rank') as HTMLSelectElement;
   const moneyInput = document.getElementById('trainer-money') as HTMLInputElement;
   const itemsInput = document.getElementById('trainer-items') as HTMLInputElement;
+  // Add IsPlayerCharacter checkbox
+  const isPlayerCheckbox = document.getElementById('trainer-player') as HTMLInputElement;
 
   function loadTrainerToForm(trainerForm: TrainerForm) {
     const trainer = trainerForm.trainer;
@@ -92,6 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rankInput.value = trainer.Rank || '';
     moneyInput.value = trainer.Money?.toString() || '';
     itemsInput.value = (trainer.Items || []).join(', ');
+    isPlayerCheckbox.checked = !!trainer.IsPlayerCharacter;
     selectedPokemon = Array.isArray(trainer.Pokemon)
       ? trainer.Pokemon.map((p: Pokemon) => (p))
       : [];
@@ -106,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const rank = (rankInput.value as RecommendedRank) || undefined;
     const money = Number(moneyInput.value);
     const items = itemsInput.value.split(',').map(s => s.trim()).filter(Boolean);
+    const isPlayer = isPlayerCheckbox.checked;
     if (!trainerName) {
       saveStatus.textContent = 'Trainer name is required!';
       saveStatus.style.color = '#dc2626';
@@ -125,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Rank: rank as RecommendedRank,
         Money: isNaN(money) ? 0 : money,
         Items: items,
+        IsPlayerCharacter: isPlayer,
       },
       OriginalName: editingTrainerOriginalName || undefined
     };
@@ -160,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                   Rank: tr.Rank || '',
                   Money: typeof tr.Money === 'number' ? tr.Money : 0,
                   Items: Array.isArray(tr.Items) ? tr.Items : [],
+                  IsPlayerCharacter: !!tr.IsPlayerCharacter,
                 },
                 OriginalName: tr.Name
               }));
@@ -219,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
           Rank: tr.Rank || '',
           Money: typeof tr.Money === 'number' ? tr.Money : 0,
           Items: Array.isArray(tr.Items) ? tr.Items : [],
+          IsPlayerCharacter: !!tr.IsPlayerCharacter,
         },
         OriginalName: tr.Name
       }));

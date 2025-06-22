@@ -36,7 +36,8 @@ const trainerSchema = new mongoose.Schema({
   ],
   Rank: String, // RecommendedRank as string
   Money: Number,
-  Items: [String]
+  Items: [String],
+  IsPlayerCharacter: { type: Boolean, default: false }
 }, { collection: 'Trainers' });
 
 const Trainer = mongoose.model('Trainer', trainerSchema);
@@ -60,7 +61,8 @@ app.post('/save-trainer', async (req, res) => {
         ImageURL: trainer.ImageURL || '',
         Rank: trainer.Rank || '',
         Money: typeof trainer.Money === 'number' ? trainer.Money : 0,
-        Items: Array.isArray(trainer.Items) ? trainer.Items : []
+        Items: Array.isArray(trainer.Items) ? trainer.Items : [],
+        IsPlayerCharacter: !!trainer.IsPlayerCharacter
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );

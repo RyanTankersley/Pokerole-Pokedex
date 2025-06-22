@@ -7,4 +7,5 @@ export interface Trainer {
     Rank: RecommendedRank;
     Money: number;
     Items: string[];
+    IsPlayerCharacter: boolean;
 }

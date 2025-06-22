@@ -1,6 +1,6 @@
 import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
-
+import { Trainer } from './trainer.js';
 let trainerData: any[] = []; // Store trainer data globally
 
 fetch('/trainer-list')
@@ -10,9 +10,11 @@ fetch('/trainer-list')
 
     // Collect all unique dex ids of all the pokemon of all the trainers
     const trainerDexIds = new Set<string>();
+    console.log(trainers);
     trainers.forEach(trainer => {
-      if (Array.isArray(trainer.Pokemon)) {
-        trainer.Pokemon.forEach((p: Pokemon) => {
+      const t = trainer as Trainer;
+      if (t.IsPlayerCharacter && Array.isArray(t.Pokemon)) {
+        t.Pokemon.forEach((p: Pokemon) => {
           trainerDexIds.add(p.DexID);
         });
       }
@@ -120,6 +122,7 @@ fetch('/trainer-list')
       });
   })
   .catch(err => {
+        console.log(err);
     const pokedexDiv = document.getElementById('pokedex');
     if (pokedexDiv) pokedexDiv.innerHTML = 'Failed to load trainer data.';
   });

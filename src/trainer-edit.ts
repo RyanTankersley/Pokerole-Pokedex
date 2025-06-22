@@ -75,17 +75,28 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStatus.style.color = '#dc2626';
       return;
     }
-    // Save logic: Download JSON
+    // Save logic: Send to server
     const trainerObj = {
       Name: trainerName,
       Pokemon: selectedPokemon
     };
-    const blob = new Blob([JSON.stringify(trainerObj, null, 2)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${trainerName.replace(/\s+/g, '_')}_trainer.json`;
-    a.click();
-    saveStatus.textContent = 'Trainer JSON downloaded!';
-    saveStatus.style.color = '#16a34a';
+    fetch('/save-trainer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(trainerObj)
+    })
+      .then(res => {
+        if (res.ok) {
+          saveStatus.textContent = 'Trainer saved to server!';
+          saveStatus.style.color = '#16a34a';
+        } else {
+          saveStatus.textContent = 'Failed to save trainer.';
+          saveStatus.style.color = '#dc2626';
+        }
+      })
+      .catch(() => {
+        saveStatus.textContent = 'Failed to save trainer.';
+        saveStatus.style.color = '#dc2626';
+      });
   };
 });

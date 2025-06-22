@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
 const app = express();
 
 const dataDir = path.join(__dirname, 'Version20');
@@ -16,6 +17,43 @@ app.use(express.static(__dirname)); // Serves static files (HTML, JS, JSON, etc.
 app.use('/pokedex-images', express.static(bookSpritesDir)); // Serve images at /pokedex-images
 app.use('/pokedex-images-token', express.static(shuffleTokenDir)); // Serve images at /pokedex-image-token
 app.use('/item-images', express.static(itemSpritesDir)); // Serve images at /pokedex-images
+app.use(express.json()); // For parsing application/json
+
+// Mongoose connection
+mongoose.connect('mongodb://localhost:27017/Pokerole20', {
+  useUnifiedTopology: true,
+  authSource: 'admin',
+  
+});
+const trainerSchema = new mongoose.Schema({
+  Name: String,
+  Pokemon: [
+    {
+      DexID: String,
+      Number: Number
+    }
+  ]
+}, { collection: 'Trainers' });
+
+const Trainer = mongoose.model('Trainer', trainerSchema);
+
+app.post('/save-trainer', async (req, res) => {
+  try {
+    const { Name, Pokemon } = req.body;
+    if (!Name || !Array.isArray(Pokemon) || Pokemon.length === 0) {
+      return res.status(400).json({ error: 'Invalid trainer data.' });
+    }
+    // Upsert by Name (edit or add)
+    await Trainer.findOneAndUpdate(
+      { Name },
+      { Name, Pokemon },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save trainer.' });
+  }
+});
 
 app.get('/pokedex-list', (req, res) => {
     fs.readdir(pokedexDir, (err, files) => {

@@ -47,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!selectedPokemon.find(p => p.DexID === poke.DexID)) {
           selectedPokemon.push({ DexID: poke.DexID, Number: poke.Number });
           renderSelectedList();
+          searchInput.value = '';
+          searchResultsDiv.innerHTML = '';
         }
       };
       searchResultsDiv.appendChild(div);
@@ -58,8 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     selectedPokemon.forEach(poke => {
       const div = document.createElement('div');
       div.className = 'selected-pokemon-item';
-      const pokeName = allPokemon.find(p => p.DexID === poke.DexID)?.Name || '';
-      div.innerHTML = `<span>#${poke.Number}</span> <span>${pokeName}</span> <button class="remove-poke-btn" title="Remove">&times;</button>`;
+      const pokeData = allPokemon.find(p => p.DexID === poke.DexID);
+      const pokeName = pokeData?.Name || '';
+      const pokeImg = pokeData?.Image ? `/pokedex-images-token/${pokeData.Image}` : '';
+      div.innerHTML = `<img src="${pokeImg}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:#fff;border:1px solid #c7d2fe;"> <span>#${poke.Number}</span> <span>${pokeName}</span> <button class="remove-poke-btn" title="Remove">&times;</button>`;
       (div.querySelector('button') as HTMLButtonElement).onclick = () => {
         selectedPokemon = selectedPokemon.filter(p => p.DexID !== poke.DexID);
         renderSelectedList();
@@ -86,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Add new form fields
   const imageUrlInput = document.getElementById('trainer-image-url') as HTMLInputElement;
-  const rankInput = document.getElementById('trainer-rank') as HTMLInputElement;
+  const rankInput = document.getElementById('trainer-rank') as HTMLSelectElement;
   const moneyInput = document.getElementById('trainer-money') as HTMLInputElement;
   const itemsInput = document.getElementById('trainer-items') as HTMLInputElement;
 
@@ -137,6 +141,29 @@ document.addEventListener('DOMContentLoaded', () => {
           saveStatus.textContent = 'Trainer saved to server!';
           saveStatus.style.color = '#16a34a';
           editingTrainerOriginalName = trainerName; // update to new name if changed
+          // Clear form after save
+          trainerNameInput.value = '';
+          imageUrlInput.value = '';
+          rankInput.value = '';
+          moneyInput.value = '';
+          itemsInput.value = '';
+          selectedPokemon = [];
+          renderSelectedList();
+          // Refresh trainers and clear selection
+          fetch('/trainer-list')
+            .then(res => res.json())
+            .then((data: any[]) => {
+              allTrainers = data.map(tr => ({
+                Name: tr.Name,
+                ImageURL: tr.ImageURL || '',
+                Pokemon: Array.isArray(tr.Pokemon) ? tr.Pokemon.map((p: any) => ({ DexID: p.DexID, Number: p.Number })) : [],
+                Rank: tr.Rank || '',
+                Money: typeof tr.Money === 'number' ? tr.Money : 0,
+                Items: Array.isArray(tr.Items) ? tr.Items : [],
+              }));
+              populateTrainerSelect();
+              trainerSelect.value = '';
+            });
         } else {
           saveStatus.textContent = 'Failed to save trainer.';
           saveStatus.style.color = '#dc2626';

@@ -9,7 +9,7 @@
   <style>
     .trainer-form { max-width: 600px; margin: 32px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #e0e7ff; padding: 24px; }
     .trainer-form label { font-weight: 600; display: block; margin-bottom: 6px; }
-    .trainer-form input[type="text"] { width: 100%; padding: 8px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #c7d2fe; }
+    .trainer-form input[type="text"], .trainer-form select { width: 100%; padding: 8px; margin-bottom: 16px; border-radius: 6px; border: 1px solid #c7d2fe; }
     .pokemon-search-results { max-height: 220px; overflow-y: auto; border: 1px solid #e0e7ff; border-radius: 8px; margin-bottom: 12px; background: #f8fafc; }
     .pokemon-search-item { display: flex; align-items: center; gap: 10px; padding: 6px 10px; cursor: pointer; border-bottom: 1px solid #e0e7ff; }
     .pokemon-search-item:last-child { border-bottom: none; }
@@ -19,29 +19,42 @@
     .remove-poke-btn { background: none; border: none; color: #fff; font-size: 1.1em; cursor: pointer; }
     .save-btn { background: #6366f1; color: #fff; border: none; border-radius: 8px; padding: 10px 24px; font-size: 1.1em; cursor: pointer; }
     .save-btn:hover { background: #4f46e5; }
+    #modern-banner-header { background: #6366f1; color: #fff; padding: 12px 0; text-align: center; font-size: 1.5em; font-weight: 600; margin-bottom: 24px; border-radius: 0 0 12px 12px; }
   </style>
 </head>
 <body>
-  <div class="trainer-form">
-    <h2>Add or Edit Trainer</h2>
-    <label for="trainer-name">Trainer Name</label>
-    <input type="text" id="trainer-name" placeholder="Enter trainer name">
-    <label for="trainer-image-url">Trainer Image URL</label>
-    <input type="text" id="trainer-image-url" placeholder="Enter image URL">
-    <label for="trainer-rank">Trainer Rank</label>
-    <input type="text" id="trainer-rank" placeholder="Enter rank (e.g. Novice, Ace, etc)">
-    <label for="trainer-money">Money</label>
-    <input type="text" id="trainer-money" placeholder="Enter money amount">
-    <label for="trainer-items">Items (comma separated)</label>
-    <input type="text" id="trainer-items" placeholder="Potion, Poké Ball, ...">
-    <label for="pokemon-search">Search Pokémon (by name or number)</label>
-    <input type="text" id="pokemon-search" placeholder="e.g. Pikachu or 25">
-    <div class="pokemon-search-results" id="pokemon-search-results"></div>
-    <label>Selected Pokémon</label>
-    <div class="selected-pokemon-list" id="selected-pokemon-list"></div>
-    <button class="save-btn" id="save-trainer">Save Trainer</button>
-    <div id="save-status" style="margin-top:12px;font-size:1em;"></div>
-  </div>
-  <script type="module" src="dist/trainer-edit.js"></script>
-</body>
+    <div id="modern-banner-header">
+      Pokerole Pokédex Trainer Editor
+    </div>
+    <div class="trainer-form">
+      <h2 style="text-align:center;margin-bottom:18px;color:#6366f1;">Add or Edit Trainer</h2>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <label for="trainer-name">Trainer Name</label>
+        <input type="text" id="trainer-name" placeholder="Enter trainer name">
+        <label for="trainer-image-url">Trainer Image URL</label>
+        <input type="text" id="trainer-image-url" placeholder="Enter image URL">
+        <label for="trainer-rank">Trainer Rank</label>
+        <select id="trainer-rank">
+          <option value="">-- Select Rank --</option>
+          <option value="Novice">Novice</option>
+          <option value="Ace">Ace</option>
+          <option value="Elite">Elite</option>
+          <option value="Master">Master</option>
+          <option value="Champion">Champion</option>
+        </select>
+        <label for="trainer-money">Money</label>
+        <input type="text" id="trainer-money" placeholder="Enter money amount">
+        <label for="trainer-items">Items <span style="font-weight:400;color:#64748b;">(comma separated)</span></label>
+        <input type="text" id="trainer-items" placeholder="Potion, Poké Ball, ...">
+        <label for="pokemon-search">Search Pokémon <span style="font-weight:400;color:#64748b;">(by name or number)</span></label>
+        <input type="text" id="pokemon-search" placeholder="e.g. Pikachu or 25">
+        <div class="pokemon-search-results" id="pokemon-search-results"></div>
+        <label>Selected Pokémon</label>
+        <div class="selected-pokemon-list" id="selected-pokemon-list"></div>
+        <button class="save-btn" id="save-trainer" style="margin-top:10px;">Save Trainer</button>
+        <div id="save-status" style="margin-top:12px;font-size:1em;"></div>
+      </div>
+    </div>
+    <script type="module" src="dist/trainer-edit.js"></script>
+  </body>
 </html>

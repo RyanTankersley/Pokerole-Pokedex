@@ -35,12 +35,7 @@
         <input type="text" id="trainer-image-url" placeholder="Enter image URL">
         <label for="trainer-rank">Trainer Rank</label>
         <select id="trainer-rank">
-          <option value="">-- Select Rank --</option>
-          <option value="Novice">Novice</option>
-          <option value="Ace">Ace</option>
-          <option value="Elite">Elite</option>
-          <option value="Master">Master</option>
-          <option value="Champion">Champion</option>
+          <!-- Options will be populated by TypeScript -->
         </select>
         <label for="trainer-money">Money</label>
         <input type="text" id="trainer-money" placeholder="Enter money amount">
@@ -56,5 +51,26 @@
       </div>
     </div>
     <script type="module" src="dist/trainer-edit.js"></script>
+    <script type="module">
+    import { RecommendedRank } from './dist/pokemon.js';
+
+    const rankInput = document.getElementById('trainer-rank');
+    if (rankInput) {
+      // Remove all options
+      rankInput.innerHTML = '';
+      // Add default option
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.textContent = '-- Select Rank --';
+      rankInput.appendChild(defaultOpt);
+      // Add enum options
+      Object.values(RecommendedRank).forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = val;
+        rankInput.appendChild(opt);
+      });
+    }
+    </script>
   </body>
 </html>

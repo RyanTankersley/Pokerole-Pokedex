@@ -1,23 +1,14 @@
-import { Pokemon } from './pokemon';
-
-interface SelectedPokemon {
-  DexID: string;
-  Number: number;
-}
+import { Pokemon, RecommendedRank } from './pokemon';
+import { Trainer } from './trainer';
 
 interface TrainerForm {
-  Name: string;
-  ImageURL: string;
-  Pokemon: SelectedPokemon[];
-  Rank: string;
-  Money: number;
-  Items: string[];
+  trainer: Trainer;
   OriginalName?: string;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   let allPokemon: Pokemon[] = [];
-  let selectedPokemon: SelectedPokemon[] = [];
+  let selectedPokemon: Pokemon[] = [];
   const searchInput = document.getElementById('pokemon-search') as HTMLInputElement;
   const searchResultsDiv = document.getElementById('pokemon-search-results') as HTMLDivElement;
   const selectedListDiv = document.getElementById('selected-pokemon-list') as HTMLDivElement;
@@ -45,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
       div.innerHTML = `<img src="/pokedex-images-token/${poke.Image || ''}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:#fff;border:1px solid #c7d2fe;"> <span>#${poke.Number} ${poke.Name}</span>`;
       div.onclick = () => {
         if (!selectedPokemon.find(p => p.DexID === poke.DexID)) {
-          selectedPokemon.push({ DexID: poke.DexID, Number: poke.Number });
+          selectedPokemon.push(poke);
           renderSelectedList();
           searchInput.value = '';
           searchResultsDiv.innerHTML = '';
@@ -94,21 +85,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const moneyInput = document.getElementById('trainer-money') as HTMLInputElement;
   const itemsInput = document.getElementById('trainer-items') as HTMLInputElement;
 
-  function loadTrainerToForm(trainer: TrainerForm) {
+  function loadTrainerToForm(trainerForm: TrainerForm) {
+    const trainer = trainerForm.trainer;
     trainerNameInput.value = trainer.Name;
     imageUrlInput.value = trainer.ImageURL || '';
     rankInput.value = trainer.Rank || '';
     moneyInput.value = trainer.Money?.toString() || '';
     itemsInput.value = (trainer.Items || []).join(', ');
-    selectedPokemon = trainer.Pokemon.map(p => ({ DexID: p.DexID, Number: p.Number }));
-    editingTrainerOriginalName = trainer.Name;
+    selectedPokemon = Array.isArray(trainer.Pokemon)
+      ? trainer.Pokemon.map((p: Pokemon) => (p))
+      : [];
+    editingTrainerOriginalName = trainerForm.OriginalName || trainer.Name;
     renderSelectedList();
   }
 
   (document.getElementById('save-trainer') as HTMLButtonElement).onclick = () => {
     const trainerName = (document.getElementById('trainer-name') as HTMLInputElement).value.trim();
     const imageUrl = imageUrlInput.value.trim();
-    const rank = rankInput.value.trim();
+    // Get the selected rank as a RecommendedRank value
+    const rank = (rankInput.value as RecommendedRank) || undefined;
     const money = Number(moneyInput.value);
     const items = itemsInput.value.split(',').map(s => s.trim()).filter(Boolean);
     if (!trainerName) {
@@ -123,20 +118,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Save logic: Send to server
     const trainerObj: TrainerForm = {
-      Name: trainerName,
-      ImageURL: imageUrl,
-      Pokemon: selectedPokemon,
-      Rank: rank,
-      Money: isNaN(money) ? 0 : money,
-      Items: items,
+      trainer: {
+        Name: trainerName,
+        ImageURL: imageUrl,
+        Pokemon: selectedPokemon,
+        Rank: rank as RecommendedRank,
+        Money: isNaN(money) ? 0 : money,
+        Items: items,
+      },
       OriginalName: editingTrainerOriginalName || undefined
     };
+    console.log(trainerObj);
     fetch('/save-trainer', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(trainerObj)
     })
       .then(res => {
+        console.log(res);
         if (res.ok) {
           saveStatus.textContent = 'Trainer saved to server!';
           saveStatus.style.color = '#16a34a';
@@ -153,13 +152,16 @@ document.addEventListener('DOMContentLoaded', () => {
           fetch('/trainer-list')
             .then(res => res.json())
             .then((data: any[]) => {
-              allTrainers = data.map(tr => ({
-                Name: tr.Name,
-                ImageURL: tr.ImageURL || '',
-                Pokemon: Array.isArray(tr.Pokemon) ? tr.Pokemon.map((p: any) => ({ DexID: p.DexID, Number: p.Number })) : [],
-                Rank: tr.Rank || '',
-                Money: typeof tr.Money === 'number' ? tr.Money : 0,
-                Items: Array.isArray(tr.Items) ? tr.Items : [],
+              allTrainers = data.map((tr: any) => ({
+                trainer: {
+                  Name: tr.Name,
+                  ImageURL: tr.ImageURL || '',
+                  Pokemon: Array.isArray(tr.Pokemon) ? tr.Pokemon.map((p: any) => ({ DexID: p.DexID, Number: p.Number })) : [],
+                  Rank: tr.Rank || '',
+                  Money: typeof tr.Money === 'number' ? tr.Money : 0,
+                  Items: Array.isArray(tr.Items) ? tr.Items : [],
+                },
+                OriginalName: tr.Name
               }));
               populateTrainerSelect();
               trainerSelect.value = '';
@@ -177,10 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function populateTrainerSelect() {
     trainerSelect.innerHTML = '<option value="">-- Select Trainer to Edit --</option>';
-    allTrainers.forEach(tr => {
+    allTrainers.forEach(trForm => {
       const opt = document.createElement('option');
-      opt.value = tr.Name;
-      opt.textContent = tr.Name;
+      opt.value = trForm.trainer.Name;
+      opt.textContent = trForm.trainer.Name;
       trainerSelect.appendChild(opt);
     });
   }
@@ -189,30 +191,25 @@ document.addEventListener('DOMContentLoaded', () => {
   fetch('/trainer-list')
     .then(res => res.json())
     .then((data: any[]) => {
-      allTrainers = data.map(tr => ({
-        Name: tr.Name,
-        ImageURL: tr.ImageURL || '',
-        Pokemon: Array.isArray(tr.Pokemon) ? tr.Pokemon.map((p: any) => ({ DexID: p.DexID, Number: p.Number })) : [],
-        Rank: tr.Rank || '',
-        Money: typeof tr.Money === 'number' ? tr.Money : 0,
-        Items: Array.isArray(tr.Items) ? tr.Items : [],
+      allTrainers = data.map((tr: any) => ({
+        trainer: {
+          Name: tr.Name,
+          ImageURL: tr.ImageURL || '',
+          Pokemon: Array.isArray(tr.Pokemon) ? tr.Pokemon.map((p: any) => ({ DexID: p.DexID, Number: p.Number })) : [],
+          Rank: tr.Rank || '',
+          Money: typeof tr.Money === 'number' ? tr.Money : 0,
+          Items: Array.isArray(tr.Items) ? tr.Items : [],
+        },
+        OriginalName: tr.Name
       }));
       populateTrainerSelect();
     });
 
   trainerSelect.addEventListener('change', () => {
-    const selected = allTrainers.find(t => t.Name === trainerSelect.value);
+    const selected = allTrainers.find(t => t.trainer.Name === trainerSelect.value);
     if (selected) {
-      // Ensure all TrainerForm fields are present
-      loadTrainerToForm({
-        Name: selected.Name,
-        ImageURL: selected.ImageURL || '',
-        Pokemon: Array.isArray(selected.Pokemon) ? selected.Pokemon.map((p: any) => ({ DexID: p.DexID, Number: p.Number })) : [],
-        Rank: selected.Rank || '',
-        Money: typeof selected.Money === 'number' ? selected.Money : 0,
-        Items: Array.isArray(selected.Items) ? selected.Items : [],
-      });
-      saveStatus.textContent = `Editing trainer: ${selected.Name}`;
+      loadTrainerToForm(selected);
+      saveStatus.textContent = `Editing trainer: ${selected.trainer.Name}`;
       saveStatus.style.color = '#6366f1';
     } else {
       trainerNameInput.value = '';

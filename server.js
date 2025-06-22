@@ -21,7 +21,6 @@ app.use(express.json()); // For parsing application/json
 
 // Mongoose connection
 mongoose.connect('mongodb://localhost:27017/Pokerole20', {
-  useUnifiedTopology: true,
   authSource: 'admin',
   
 });
@@ -44,26 +43,29 @@ const Trainer = mongoose.model('Trainer', trainerSchema);
 
 app.post('/save-trainer', async (req, res) => {
   try {
-    const { Name, Pokemon, OriginalName, ImageURL, Rank, Money, Items } = req.body;
-    if (!Name || !Array.isArray(Pokemon) || Pokemon.length === 0) {
+    const { trainer, OriginalName } = req.body;
+    if (!trainer || !trainer.Name || !Array.isArray(trainer.Pokemon) || trainer.Pokemon.length === 0) {
       return res.status(400).json({ error: 'Invalid trainer data.' });
     }
     // If OriginalName is provided and different, update by OriginalName
-    const queryName = OriginalName && OriginalName !== Name ? OriginalName : Name;
+    const queryName = OriginalName && OriginalName !== trainer.Name ? OriginalName : trainer.Name;
     await Trainer.findOneAndUpdate(
       { Name: queryName },
       {
-        Name,
-        Pokemon,
-        ImageURL: ImageURL || '',
-        Rank: Rank || '',
-        Money: typeof Money === 'number' ? Money : 0,
-        Items: Array.isArray(Items) ? Items : []
+        Name: trainer.Name,
+        Pokemon: trainer.Pokemon.map(p => ({
+          DexID: p.DexID || '',
+          Number: typeof p.Number === 'number' ? p.Number : 0
+        })),
+        ImageURL: trainer.ImageURL || '',
+        Rank: trainer.Rank || '',
+        Money: typeof trainer.Money === 'number' ? trainer.Money : 0,
+        Items: Array.isArray(trainer.Items) ? trainer.Items : []
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
     // If the name was changed, remove the old trainer if it exists and is different
-    if (OriginalName && OriginalName !== Name) {
+    if (OriginalName && OriginalName !== trainer.Name) {
       await Trainer.deleteOne({ Name: OriginalName });
     }
     res.json({ success: true });

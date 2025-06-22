@@ -26,29 +26,46 @@ mongoose.connect('mongodb://localhost:27017/Pokerole20', {
   
 });
 const trainerSchema = new mongoose.Schema({
-  Name: String,
+  Name: { type: String, required: true },
+  ImageURL: String,
   Pokemon: [
     {
+      // Store DexID and Number for selection, but can be expanded to full Pokemon schema if needed
       DexID: String,
       Number: Number
     }
-  ]
+  ],
+  Rank: String, // RecommendedRank as string
+  Money: Number,
+  Items: [String]
 }, { collection: 'Trainers' });
 
 const Trainer = mongoose.model('Trainer', trainerSchema);
 
 app.post('/save-trainer', async (req, res) => {
   try {
-    const { Name, Pokemon } = req.body;
+    const { Name, Pokemon, OriginalName, ImageURL, Rank, Money, Items } = req.body;
     if (!Name || !Array.isArray(Pokemon) || Pokemon.length === 0) {
       return res.status(400).json({ error: 'Invalid trainer data.' });
     }
-    // Upsert by Name (edit or add)
+    // If OriginalName is provided and different, update by OriginalName
+    const queryName = OriginalName && OriginalName !== Name ? OriginalName : Name;
     await Trainer.findOneAndUpdate(
-      { Name },
-      { Name, Pokemon },
+      { Name: queryName },
+      {
+        Name,
+        Pokemon,
+        ImageURL: ImageURL || '',
+        Rank: Rank || '',
+        Money: typeof Money === 'number' ? Money : 0,
+        Items: Array.isArray(Items) ? Items : []
+      },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+    // If the name was changed, remove the old trainer if it exists and is different
+    if (OriginalName && OriginalName !== Name) {
+      await Trainer.deleteOne({ Name: OriginalName });
+    }
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to save trainer.' });
@@ -95,19 +112,30 @@ app.get('/pokedex-list', (req, res) => {
     });
 });
 
-app.get('/trainer-list', (req, res) => {
-    const trainerDataPath = path.join(campaignDir, 'trainerdata.json');
-    fs.readFile(trainerDataPath, 'utf8', (err, data) => {
-        if (err) {
-            return res.status(500).send('Error reading trainer data');
+app.get('/trainer-list', async (req, res) => {
+  try {
+    // Get all trainers from MongoDB
+    const trainers = await Trainer.find({}).lean();
+    // For each trainer, populate their Pokemon with full info from Pokedex
+    for (const trainer of trainers) {
+      if (Array.isArray(trainer.Pokemon)) {
+        // Get all DexIDs for this trainer
+        const dexIds = trainer.Pokemon.map(p => p.DexID);
+        // Query all matching pokemon from Mongo
+        const pokedexEntries = await PokemonModel.find({ DexID: { $in: dexIds } }).lean();
+        // Map DexID to full pokemon info
+        const dexMap = {};
+        for (const poke of pokedexEntries) {
+          dexMap[poke.DexID] = poke;
         }
-        try {
-            const parsed = JSON.parse(data);
-            res.json(parsed);
-        } catch (e) {
-            res.status(500).send('Error parsing trainer data');
-        }
-    });
+        // Replace each entry in trainer.Pokemon with the full info (if found)
+        trainer.Pokemon = trainer.Pokemon.map(p => dexMap[p.DexID] || p);
+      }
+    }
+    res.json(trainers);
+  } catch (err) {
+    res.status(500).send('Error loading trainers from database');
+  }
 });
 
 /**
@@ -141,6 +169,47 @@ app.get('/recommended-rank-image/:num', (req, res) => {
     res.status(404).send('Not found');
   }
 });
+
+const pokemonSchema = new mongoose.Schema({
+  DexID: { type: String, required: true },
+  Number: Number,
+  Name: String,
+  Type1: String,
+  Type2: String,
+  Image: String,
+  DexDescription: String,
+  Height: {
+    Feet: Number,
+    Inches: Number,
+    Meters: Number,
+  },
+  Weight: {
+    Pounds: Number,
+    Kilograms: Number,
+  },
+  BaseHP: Number,
+  BaseAttack: Number,
+  BaseDefense: Number,
+  BaseSpAttack: Number,
+  BaseSpDefense: Number,
+  BaseSpeed: Number,
+  Moves: [
+    {
+      Name: String,
+      Level: Number,
+      Type: String,
+      Power: Number,
+      Accuracy: Number,
+      PP: Number,
+      Description: String
+    }
+  ],
+  Abilities: [String],
+  RecommendedRank: String,
+  // Add any other fields from your TypeScript model as needed
+}, { collection: 'Pokedex' });
+
+const PokemonModel = mongoose.model('Pokemon', pokemonSchema);
 
 app.listen(3000, () => {
   console.log('Server running at http://localhost:3000');

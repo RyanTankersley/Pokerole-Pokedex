@@ -1,4 +1,4 @@
-import { Pokemon, PokemonType, PokemonTypeColor } from './pokemon.js';
+import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
 
 let trainerData: any[] = []; // Store trainer data globally
@@ -25,7 +25,21 @@ fetch('/trainer-list')
         const pokedexDiv = document.getElementById('pokedex');
         if (!pokedexDiv) return;
 
-        function renderCards(showTrainerOnly: boolean, typeFilter: string = '', nameFilter: string = '') {
+        // Populate rank filter dropdown sorted by RecommendedRankNumber
+        const rankFilter = document.getElementById('rank-filter') as HTMLSelectElement;
+        if (rankFilter) {
+          const rankEntries = Object.values(RecommendedRank)
+            .filter(v => typeof v === 'string')
+            .sort((a, b) => (RecommendedRankNumber[a as RecommendedRank] ?? 0) - (RecommendedRankNumber[b as RecommendedRank] ?? 0));
+          rankEntries.forEach(rank => {
+            const opt = document.createElement('option');
+            opt.value = rank;
+            opt.textContent = rank;
+            rankFilter.appendChild(opt);
+          });
+        }
+
+        function renderCards(showTrainerOnly: boolean, typeFilter: string = '', nameFilter: string = '', rankFilterVal: string = '') {
           if (!pokedexDiv) return;
           pokedexDiv.innerHTML = '';
           pokemonArray.slice(1, pokemonArray.length).forEach((pokemon: Pokemon) => {
@@ -38,6 +52,13 @@ fetch('/trainer-list')
               typeFilter &&
               pokemon.Type1 !== typeFilter &&
               pokemon.Type2 !== typeFilter
+            ) {
+              return;
+            }
+            // Rank filter
+            if (
+              rankFilterVal &&
+              pokemon.RecommendedRank !== rankFilterVal
             ) {
               return;
             }
@@ -67,13 +88,14 @@ fetch('/trainer-list')
           return {
             showTrainerOnly: !!(showTrainerRadio && showTrainerRadio.checked),
             type: typeFilter ? typeFilter.value : '',
+            rank: rankFilter ? rankFilter.value : '',
             name: nameSearch ? nameSearch.value.trim() : ''
           };
         }
 
         function rerender() {
-          const { showTrainerOnly, type, name } = getCurrentFilters();
-          renderCards(showTrainerOnly, type, name);
+          const { showTrainerOnly, type, rank, name } = getCurrentFilters();
+          renderCards(showTrainerOnly, type, name, rank);
         }
 
         if (showAllRadio && showTrainerRadio) {
@@ -83,9 +105,14 @@ fetch('/trainer-list')
         if (typeFilter) {
           typeFilter.addEventListener('change', rerender);
         }
+        if (rankFilter) {
+          rankFilter.addEventListener('change', rerender);
+        }
         if (nameSearch) {
           nameSearch.addEventListener('input', rerender);
         }
+        // Initial render: show all details
+        rerender();
       })
       .catch(err => {
         const pokedexDiv = document.getElementById('pokedex');

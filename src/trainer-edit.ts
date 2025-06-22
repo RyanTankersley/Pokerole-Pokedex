@@ -1,5 +1,5 @@
-import { Pokemon, RecommendedRank } from './pokemon';
-import { Trainer } from './trainer';
+import { Pokemon, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
+import { Trainer } from './trainer.js';
 
 interface TrainerForm {
   trainer: Trainer;
@@ -186,6 +186,26 @@ document.addEventListener('DOMContentLoaded', () => {
       trainerSelect.appendChild(opt);
     });
   }
+
+  // Populate Trainer Rank dropdown sorted by RecommendedRankNumber
+  function populateRankDropdown() {
+    console.log("hello");
+    // Get all enum values (keys) and sort by RecommendedRankNumber
+    const rankEntries = Object.values(RecommendedRank)
+      .filter(v => typeof v === 'string')
+      .sort((a, b) => (RecommendedRankNumber[a as RecommendedRank] ?? 0) - (RecommendedRankNumber[b as RecommendedRank] ?? 0));
+    console.log(rankEntries);
+      rankInput.innerHTML = '<option value="">-- Select Rank --</option>';
+    rankEntries.forEach(rank => {
+      const opt = document.createElement('option');
+      opt.value = rank;
+      opt.textContent = rank;
+      rankInput.appendChild(opt);
+    });
+  }
+
+  // Call this after DOMContentLoaded
+  populateRankDropdown();
 
   // Fetch all trainers on load
   fetch('/trainer-list')

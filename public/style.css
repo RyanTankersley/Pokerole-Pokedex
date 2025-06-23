@@ -36,8 +36,8 @@ body {
 .moves-table-item {
   background: #e0e7ff;
   border-radius: 4px;
-  padding: 2px 4px;
-  font-size: 0.65em;
+  padding: 2px 0px;
+  font-size: 0.60em;
   color: #3730a3;
   box-shadow: none;
   display: block;

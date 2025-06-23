@@ -56,14 +56,16 @@ export function createPokemonCard(
       </div>`
     : '';
 
-  // Moves list
-  const moves = pokemon.Moves?.map(m => m.Name).filter(Boolean) || [];
-  const movesHtml = moves.length
+  // Moves list with rank images
+  const movesHtml = pokemon.Moves?.length
     ? `<div style="margin-top:10px;">
-          <div class="moves-table">
-            ${moves.map(m => `
-              <span class="moves-table-item">${m}</span>
-            `).join('')}
+          <div class="moves-table" style="text-align:left;">
+            ${pokemon.Moves.map(m => {
+              const rankImg = m.Learned && RecommendedRankNumber[m.Learned]
+                ? `<img src="/recommended-rank-image/${RecommendedRankNumber[m.Learned]}" alt="${m.Learned}" title="${m.Learned}" style="height:1.2em;width:1.2em;vertical-align:middle;margin-right:3px;">`
+                : '';
+              return `<span class="moves-table-item">${rankImg}${m.Name}</span>`;
+            }).join('')}
           </div>
        </div>`
     : '';

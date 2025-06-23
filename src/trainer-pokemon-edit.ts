@@ -1,5 +1,6 @@
 import { Trainer, TrainerPokemon } from './trainer.js';
-import { Pokemon } from './pokemon.js';
+import { Pokemon, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
+import { createPokemonCard } from './domComponents.js';
 
 let allTrainers: Trainer[] = [];
 let allPokemon: Pokemon[] = [];
@@ -8,6 +9,39 @@ const saveBtn = document.getElementById('save-victory') as HTMLButtonElement;
 const saveStatus = document.getElementById('save-status') as HTMLDivElement;
 const pokeInfoDiv = document.getElementById('poke-info') as HTMLDivElement;
 const labelDiv = document.getElementById('trainer-poke-labels') as HTMLDivElement;
+
+// Add CurrentRank select
+const currentRankLabel = document.createElement('label');
+currentRankLabel.htmlFor = 'current-rank';
+currentRankLabel.textContent = 'Current Rank';
+currentRankLabel.style.display = 'block';
+currentRankLabel.style.fontWeight = '600';
+currentRankLabel.style.marginTop = '12px';
+const currentRankSelect = document.createElement('select');
+currentRankSelect.id = 'current-rank';
+currentRankSelect.style.width = '100%';
+currentRankSelect.style.padding = '8px';
+currentRankSelect.style.marginBottom = '16px';
+currentRankSelect.style.borderRadius = '6px';
+currentRankSelect.style.border = '1px solid #c7d2fe';
+currentRankSelect.innerHTML = '<option value="">-- Select Rank --</option>';
+// Sort ranks by RecommendedRankNumber
+const rankEntries = Object.values(RecommendedRank)
+  .filter(v => typeof v === 'string')
+  .sort((a, b) => (RecommendedRankNumber[a as RecommendedRank] ?? 0) - (RecommendedRankNumber[b as RecommendedRank] ?? 0));
+rankEntries.forEach(rank => {
+  const opt = document.createElement('option');
+  opt.value = rank;
+  // Add image to option using innerHTML (works in most browsers)
+  const rankNum = RecommendedRankNumber[rank as RecommendedRank];
+  opt.innerHTML = `<img src="/recommended-rank-image/${rankNum}" style="height:1.2em;width:1.2em;vertical-align:middle;margin-right:4px;">${rank}`;
+  currentRankSelect.appendChild(opt);
+});
+const form = document.querySelector('.trainer-pokemon-form');
+if (form) {
+  form.insertBefore(currentRankLabel, victoryInput.nextSibling);
+  form.insertBefore(currentRankSelect, currentRankLabel.nextSibling);
+}
 
 // Remove trainer and pokemon selects if present
 const trainerSelect = document.getElementById('trainer-select');
@@ -19,8 +53,179 @@ function showTrainerAndPokemonLabels(trainer: Trainer, poke: TrainerPokemon, pok
   if (!labelDiv) return;
   labelDiv.innerHTML = `
     <div style="font-weight:600;font-size:1.1em;color:#6366f1;">Trainer: <span style='color:#222'>${trainer.Name}</span></div>
+    <div style="font-weight:600;font-size:1.1em;color:#6366f1;">Pokémon: <span style='color:#222'>#${poke.Number} ${pokeData ? pokeData.Name : ''}</span></div>
   `;
 }
+
+// Helper types for attribute keys
+const attributeNames = [
+  { key: 'CurrentStrength', label: 'Strength', maxKey: 'MaxStrength' },
+  { key: 'CurrentDexterity', label: 'Dexterity', maxKey: 'MaxDexterity' },
+  { key: 'CurrentVitality', label: 'Vitality', maxKey: 'MaxVitality' },
+  { key: 'CurrentSpecial', label: 'Special', maxKey: 'MaxSpecial' },
+  { key: 'CurrentInsight', label: 'Insight', maxKey: 'MaxInsight' }
+] as const;
+type AttributeKey = typeof attributeNames[number]['key'];
+type MaxKey = typeof attributeNames[number]['maxKey'];
+
+function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
+  const section = document.getElementById('attributes-section');
+  if (!section) return;
+  section.innerHTML = '<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Attributes</div>';
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = '1fr 1fr';
+  grid.style.gap = '12px';
+  attributeNames.forEach(attr => {
+    const max = pokeData[attr.maxKey as keyof Pokemon] as number || 5;
+    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '8px';
+    const label = document.createElement('label');
+    label.htmlFor = attr.key;
+    label.textContent = `${attr.label} (${value} / ${max})`;
+    label.style.display = 'block';
+    label.style.fontWeight = '600';
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.id = attr.key;
+    slider.min = '1';
+    slider.max = String(max);
+    slider.value = String(value);
+    slider.style.width = '100%';
+    slider.oninput = (e) => {
+      const val = Number((e.target as HTMLInputElement).value);
+      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
+      label.textContent = `${attr.label} (${val} / ${max})`;
+    };
+    wrapper.appendChild(label);
+    wrapper.appendChild(slider);
+    grid.appendChild(wrapper);
+  });
+  section.appendChild(grid);
+}
+
+// Social attribute slider config
+const socialAttributeNames = [
+  { key: 'CurrentTough', label: 'Tough', maxKey: 'MaxTough' },
+  { key: 'CurrentCool', label: 'Cool', maxKey: 'MaxCool' },
+  { key: 'CurrentBeauty', label: 'Beauty', maxKey: 'MaxBeauty' },
+  { key: 'CurrentClever', label: 'Clever', maxKey: 'MaxClever' },
+  { key: 'CurrentCute', label: 'Cute', maxKey: 'MaxCute' }
+] as const;
+type SocialAttributeKey = typeof socialAttributeNames[number]['key'];
+type SocialMaxKey = typeof socialAttributeNames[number]['maxKey'];
+
+function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
+  const section = document.getElementById('social-attributes-section');
+  if (!section) return;
+  section.innerHTML = '<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Social Attributes</div>';
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = '1fr 1fr';
+  grid.style.gap = '12px';
+  socialAttributeNames.forEach(attr => {
+    const max = 5; // Social attributes always max at 5
+    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '8px';
+    const label = document.createElement('label');
+    label.htmlFor = attr.key;
+    label.textContent = `${attr.label} (${value} / ${max})`;
+    label.style.display = 'block';
+    label.style.fontWeight = '600';
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.id = attr.key;
+    slider.min = '1';
+    slider.max = String(max);
+    slider.value = String(value);
+    slider.style.width = '100%';
+    slider.oninput = (e) => {
+      const val = Number((e.target as HTMLInputElement).value);
+      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
+      label.textContent = `${attr.label} (${val} / ${max})`;
+    };
+    wrapper.appendChild(label);
+    wrapper.appendChild(slider);
+    grid.appendChild(wrapper);
+  });
+  section.appendChild(grid);
+}
+
+// Skills slider config
+const skillNames = [
+  { key: 'SkillBrawl', label: 'Brawl' },
+  { key: 'SkillChannel', label: 'Channel' },
+  { key: 'SkillClash', label: 'Clash' },
+  { key: 'SkillEvasion', label: 'Evasion' },
+  { key: 'SkillAlert', label: 'Alert' },
+  { key: 'SkillAthletic', label: 'Athletic' },
+  { key: 'SkillNature', label: 'Nature' },
+  { key: 'SkillStealth', label: 'Stealth' },
+  { key: 'SkillAllure', label: 'Allure' },
+  { key: 'SkillEtiquette', label: 'Etiquette' },
+  { key: 'SkillIntimidate', label: 'Intimidate' },
+  { key: 'SkillPerform', label: 'Perform' }
+] as const;
+type SkillKey = typeof skillNames[number]['key'];
+
+function getSkillMax(rank: string | undefined): number {
+  switch (rank) {
+    case 'Starter': return 1;
+    case 'Beginner': return 2;
+    case 'Amateur': return 3;
+    case 'Ace': return 4;
+    case 'Pro': return 4;
+    case 'Master': return 6;
+    default: return 1;
+  }
+}
+
+function renderSkillSliders(poke: TrainerPokemon) {
+  const section = document.getElementById('skills-section');
+  if (!section) return;
+  section.innerHTML = '<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Skills</div>';
+  const max = getSkillMax(poke.CurrentRank);
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = '1fr 1fr';
+  grid.style.gap = '12px';
+  skillNames.forEach(attr => {
+    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 0;
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '8px';
+    const label = document.createElement('label');
+    label.htmlFor = attr.key;
+    label.textContent = `${attr.label} (${value} / ${max})`;
+    label.style.display = 'block';
+    label.style.fontWeight = '600';
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.id = attr.key;
+    slider.min = '0';
+    slider.max = String(max);
+    slider.value = String(value);
+    slider.style.width = '100%';
+    slider.oninput = (e) => {
+      const val = Number((e.target as HTMLInputElement).value);
+      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
+      label.textContent = `${attr.label} (${val} / ${max})`;
+    };
+    wrapper.appendChild(label);
+    wrapper.appendChild(slider);
+    grid.appendChild(wrapper);
+  });
+  section.appendChild(grid);
+}
+
+// Update skill sliders when rank changes
+currentRankSelect.addEventListener('change', () => {
+  if (selectedPoke) {
+    selectedPoke.CurrentRank = currentRankSelect.value as RecommendedRank || undefined;
+    renderSkillSliders(selectedPoke);
+  }
+});
 
 function showPokemonInfo(trainer: Trainer, dexid: string) {
   if (!pokeInfoDiv || !labelDiv) return;
@@ -31,16 +236,19 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
     labelDiv.innerHTML = '';
     return;
   }
-  const imgSrc = pokeData.Image ? `/pokedex-images-token/${pokeData.Image}` : '';
-  pokeInfoDiv.innerHTML = `
-    <div style="display:flex;align-items:center;gap:16px;">
-      <img src="${imgSrc}" alt="#${poke.Number}" style="width:60px;height:60px;object-fit:contain;border-radius:8px;background:#fff;border:1px solid #c7d2fe;">
-      <div>
-        <div style="font-weight:600;font-size:1.2em;">#${poke.Number} ${pokeData.Name}</div>
-      </div>
-    </div>
-  `;
+  // Use the pokedex card
+  pokeInfoDiv.innerHTML = '';
+  const card = createPokemonCard(pokeData, { showDetails: true });
+  pokeInfoDiv.appendChild(card);
   showTrainerAndPokemonLabels(trainer, poke, pokeData);
+  // Set current rank select
+  currentRankSelect.value = poke.CurrentRank || '';
+  // Render attribute sliders
+  renderAttributeSliders(poke, pokeData);
+  // Render social attribute sliders
+  renderSocialAttributeSliders(poke, pokeData);
+  // Render skill sliders
+  renderSkillSliders(poke);
 }
 
 let selectedTrainer: Trainer | undefined;
@@ -60,6 +268,7 @@ fetch('/trainer-list')
         selectedPoke = selectedTrainer.Pokemon.find(p => p.DexID === dexid);
         if (selectedPoke) {
           victoryInput.value = String(selectedPoke.Victories ?? 0);
+          currentRankSelect.value = selectedPoke.CurrentRank || '';
         }
       }
     }
@@ -90,6 +299,8 @@ saveBtn.onclick = () => {
     return;
   }
   selectedPoke.Victories = Number(victoryInput.value) || 0;
+  selectedPoke.CurrentRank = currentRankSelect.value as RecommendedRank || undefined;
+  // Attribute values are already updated by slider events
   // Save the updated trainer
   fetch('/save-trainer', {
     method: 'POST',
@@ -98,7 +309,7 @@ saveBtn.onclick = () => {
   })
     .then(res => {
       if (res.ok) {
-        saveStatus.textContent = 'Victory count saved!';
+        saveStatus.textContent = 'Victory count, rank, and attributes saved!';
         saveStatus.style.color = '#16a34a';
       } else {
         saveStatus.textContent = 'Failed to save.';

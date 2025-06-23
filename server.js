@@ -32,7 +32,33 @@ const trainerSchema = new mongoose.Schema({
       // Store DexID and Number for selection, but can be expanded to full Pokemon schema if needed
       DexID: String,
       Number: Number,
-      Victories: { type: Number, default: 0 }
+      Victories: { type: Number, default: 0 },
+      CurrentRank: String,
+      // Attribute fields for trainer's Pokémon
+      CurrentStrength: { type: Number, default: 1 },
+      CurrentDexterity: { type: Number, default: 1 },
+      CurrentVitality: { type: Number, default: 1 },
+      CurrentSpecial: { type: Number, default: 1 },
+      CurrentInsight: { type: Number, default: 1 },
+      // Social attribute fields for trainer's Pokémon
+      CurrentTough: { type: Number, default: 1 },
+      CurrentCool: { type: Number, default: 1 },
+      CurrentBeauty: { type: Number, default: 1 },
+      CurrentClever: { type: Number, default: 1 },
+      CurrentCute: { type: Number, default: 1 },
+      // Skill fields for trainer's Pokémon
+      SkillBrawl: { type: Number, default: 1 },
+      SkillChannel: { type: Number, default: 1 },
+      SkillClash: { type: Number, default: 1 },
+      SkillEvasion: { type: Number, default: 1 },
+      SkillAlert: { type: Number, default: 1 },
+      SkillAthletic: { type: Number, default: 1 },
+      SkillNature: { type: Number, default: 1 },
+      SkillStealth: { type: Number, default: 1 },
+      SkillAllure: { type: Number, default: 1 },
+      SkillEtiquette: { type: Number, default: 1 },
+      SkillIntimidate: { type: Number, default: 1 },
+      SkillPerform: { type: Number, default: 1 }
     }
   ],
   Rank: String, // RecommendedRank as string
@@ -58,7 +84,32 @@ app.post('/save-trainer', async (req, res) => {
         Pokemon: trainer.Pokemon.map(p => ({
           DexID: p.DexID || '',
           Number: typeof p.Number === 'number' ? p.Number : 0,
-          Victories: typeof p.Victories === 'number' ? p.Victories : 0
+          Victories: typeof p.Victories === 'number' ? p.Victories : 0,
+          CurrentRank: p.CurrentRank || '',
+          CurrentStrength: typeof p.CurrentStrength === 'number' ? p.CurrentStrength : 1,
+          CurrentDexterity: typeof p.CurrentDexterity === 'number' ? p.CurrentDexterity : 1,
+          CurrentVitality: typeof p.CurrentVitality === 'number' ? p.CurrentVitality : 1,
+          CurrentSpecial: typeof p.CurrentSpecial === 'number' ? p.CurrentSpecial : 1,
+          CurrentInsight: typeof p.CurrentInsight === 'number' ? p.CurrentInsight : 1,
+          // Social attributes
+          CurrentTough: typeof p.CurrentTough === 'number' ? p.CurrentTough : 1,
+          CurrentCool: typeof p.CurrentCool === 'number' ? p.CurrentCool : 1,
+          CurrentBeauty: typeof p.CurrentBeauty === 'number' ? p.CurrentBeauty : 1,
+          CurrentClever: typeof p.CurrentClever === 'number' ? p.CurrentClever : 1,
+          CurrentCute: typeof p.CurrentCute === 'number' ? p.CurrentCute : 1,
+          // Skills
+          SkillBrawl: typeof p.SkillBrawl === 'number' ? p.SkillBrawl : 1,
+          SkillChannel: typeof p.SkillChannel === 'number' ? p.SkillChannel : 1,
+          SkillClash: typeof p.SkillClash === 'number' ? p.SkillClash : 1,
+          SkillEvasion: typeof p.SkillEvasion === 'number' ? p.SkillEvasion : 1,
+          SkillAlert: typeof p.SkillAlert === 'number' ? p.SkillAlert : 1,
+          SkillAthletic: typeof p.SkillAthletic === 'number' ? p.SkillAthletic : 1,
+          SkillNature: typeof p.SkillNature === 'number' ? p.SkillNature : 1,
+          SkillStealth: typeof p.SkillStealth === 'number' ? p.SkillStealth : 1,
+          SkillAllure: typeof p.SkillAllure === 'number' ? p.SkillAllure : 1,
+          SkillEtiquette: typeof p.SkillEtiquette === 'number' ? p.SkillEtiquette : 1,
+          SkillIntimidate: typeof p.SkillIntimidate === 'number' ? p.SkillIntimidate : 1,
+          SkillPerform: typeof p.SkillPerform === 'number' ? p.SkillPerform : 1
         })),
         ImageURL: trainer.ImageURL || '',
         Rank: trainer.Rank || '',
@@ -122,7 +173,7 @@ app.get('/trainer-list', async (req, res) => {
   try {
     // Get all trainers from MongoDB
     const trainers = await Trainer.find({}).lean();
-    // For each trainer, merge their Pokemon with full info from Pokedex, but keep original fields like Victories
+    // For each trainer, merge their Pokemon with full info from Pokedex, but keep original fields like Victories and attributes
     for (const trainer of trainers) {
       if (Array.isArray(trainer.Pokemon)) {
         // Get all DexIDs for this trainer
@@ -134,14 +185,39 @@ app.get('/trainer-list', async (req, res) => {
         for (const poke of pokedexEntries) {
           dexMap[poke.DexID] = poke;
         }
-        // Merge each entry in trainer.Pokemon with the full info (if found), preserving Victories and Number
+        // Merge each entry in trainer.Pokemon with the full info (if found), preserving Victories, Number, and attributes
         trainer.Pokemon = trainer.Pokemon.map(p => {
           const full = dexMap[p.DexID] || {};
           return {
             ...full,
             DexID: p.DexID,
             Number: p.Number,
-            Victories: typeof p.Victories === 'number' ? p.Victories : 0
+            Victories: typeof p.Victories === 'number' ? p.Victories : 0,
+            CurrentRank: p.CurrentRank || '',
+            CurrentStrength: typeof p.CurrentStrength === 'number' ? p.CurrentStrength : 1,
+            CurrentDexterity: typeof p.CurrentDexterity === 'number' ? p.CurrentDexterity : 1,
+            CurrentVitality: typeof p.CurrentVitality === 'number' ? p.CurrentVitality : 1,
+            CurrentSpecial: typeof p.CurrentSpecial === 'number' ? p.CurrentSpecial : 1,
+            CurrentInsight: typeof p.CurrentInsight === 'number' ? p.CurrentInsight : 1,
+            // Social attributes
+            CurrentTough: typeof p.CurrentTough === 'number' ? p.CurrentTough : 1,
+            CurrentCool: typeof p.CurrentCool === 'number' ? p.CurrentCool : 1,
+            CurrentBeauty: typeof p.CurrentBeauty === 'number' ? p.CurrentBeauty : 1,
+            CurrentClever: typeof p.CurrentClever === 'number' ? p.CurrentClever : 1,
+            CurrentCute: typeof p.CurrentCute === 'number' ? p.CurrentCute : 1,
+            // Skills
+            SkillBrawl: typeof p.SkillBrawl === 'number' ? p.SkillBrawl : 1,
+            SkillChannel: typeof p.SkillChannel === 'number' ? p.SkillChannel : 1,
+            SkillClash: typeof p.SkillClash === 'number' ? p.SkillClash : 1,
+            SkillEvasion: typeof p.SkillEvasion === 'number' ? p.SkillEvasion : 1,
+            SkillAlert: typeof p.SkillAlert === 'number' ? p.SkillAlert : 1,
+            SkillAthletic: typeof p.SkillAthletic === 'number' ? p.SkillAthletic : 1,
+            SkillNature: typeof p.SkillNature === 'number' ? p.SkillNature : 1,
+            SkillStealth: typeof p.SkillStealth === 'number' ? p.SkillStealth : 1,
+            SkillAllure: typeof p.SkillAllure === 'number' ? p.SkillAllure : 1,
+            SkillEtiquette: typeof p.SkillEtiquette === 'number' ? p.SkillEtiquette : 1,
+            SkillIntimidate: typeof p.SkillIntimidate === 'number' ? p.SkillIntimidate : 1,
+            SkillPerform: typeof p.SkillPerform === 'number' ? p.SkillPerform : 1
           };
         });
       }

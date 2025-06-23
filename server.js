@@ -31,7 +31,8 @@ const trainerSchema = new mongoose.Schema({
     {
       // Store DexID and Number for selection, but can be expanded to full Pokemon schema if needed
       DexID: String,
-      Number: Number
+      Number: Number,
+      Victories: { type: Number, default: 0 }
     }
   ],
   Rank: String, // RecommendedRank as string
@@ -56,7 +57,8 @@ app.post('/save-trainer', async (req, res) => {
         Name: trainer.Name,
         Pokemon: trainer.Pokemon.map(p => ({
           DexID: p.DexID || '',
-          Number: typeof p.Number === 'number' ? p.Number : 0
+          Number: typeof p.Number === 'number' ? p.Number : 0,
+          Victories: typeof p.Victories === 'number' ? p.Victories : 0
         })),
         ImageURL: trainer.ImageURL || '',
         Rank: trainer.Rank || '',
@@ -120,7 +122,7 @@ app.get('/trainer-list', async (req, res) => {
   try {
     // Get all trainers from MongoDB
     const trainers = await Trainer.find({}).lean();
-    // For each trainer, populate their Pokemon with full info from Pokedex
+    // For each trainer, merge their Pokemon with full info from Pokedex, but keep original fields like Victories
     for (const trainer of trainers) {
       if (Array.isArray(trainer.Pokemon)) {
         // Get all DexIDs for this trainer
@@ -132,8 +134,16 @@ app.get('/trainer-list', async (req, res) => {
         for (const poke of pokedexEntries) {
           dexMap[poke.DexID] = poke;
         }
-        // Replace each entry in trainer.Pokemon with the full info (if found)
-        trainer.Pokemon = trainer.Pokemon.map(p => dexMap[p.DexID] || p);
+        // Merge each entry in trainer.Pokemon with the full info (if found), preserving Victories and Number
+        trainer.Pokemon = trainer.Pokemon.map(p => {
+          const full = dexMap[p.DexID] || {};
+          return {
+            ...full,
+            DexID: p.DexID,
+            Number: p.Number,
+            Victories: typeof p.Victories === 'number' ? p.Victories : 0
+          };
+        });
       }
     }
     res.json(trainers);

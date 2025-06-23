@@ -1,6 +1,6 @@
 import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
-import { Trainer } from './trainer.js';
+import { Trainer, TrainerPokemon } from './trainer.js';
 let trainerData: any[] = []; // Store trainer data globally
 
 fetch('/trainer-list')
@@ -14,7 +14,7 @@ fetch('/trainer-list')
     trainers.forEach(trainer => {
       const t = trainer as Trainer;
       if (t.IsPlayerCharacter && Array.isArray(t.Pokemon)) {
-        t.Pokemon.forEach((p: Pokemon) => {
+        t.Pokemon.forEach((p: TrainerPokemon) => {
           trainerDexIds.add(p.DexID);
         });
       }

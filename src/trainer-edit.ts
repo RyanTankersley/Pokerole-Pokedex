@@ -1,5 +1,5 @@
 import { Pokemon, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
-import { Trainer } from './trainer.js';
+import { toTrainerPokemon, Trainer, TrainerPokemon } from './trainer.js';
 
 interface TrainerForm {
   trainer: Trainer;
@@ -8,7 +8,7 @@ interface TrainerForm {
 
 document.addEventListener('DOMContentLoaded', () => {
   let allPokemon: Pokemon[] = [];
-  let selectedPokemon: Pokemon[] = [];
+  let selectedPokemon: TrainerPokemon[] = [];
   const searchInput = document.getElementById('pokemon-search') as HTMLInputElement;
   const searchResultsDiv = document.getElementById('pokemon-search-results') as HTMLDivElement;
   const selectedListDiv = document.getElementById('selected-pokemon-list') as HTMLDivElement;
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
       div.innerHTML = `<img src="/pokedex-images-token/${poke.Image || ''}" style="width:32px;height:32px;object-fit:contain;border-radius:6px;background:#fff;border:1px solid #c7d2fe;"> <span>#${poke.Number} ${poke.Name}</span>`;
       div.onclick = () => {
         if (!selectedPokemon.find(p => p.DexID === poke.DexID)) {
-          selectedPokemon.push(poke);
+          selectedPokemon.push(toTrainerPokemon(poke));
           renderSelectedList();
           searchInput.value = '';
           searchResultsDiv.innerHTML = '';
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     itemsInput.value = (trainer.Items || []).join(', ');
     isPlayerCheckbox.checked = !!trainer.IsPlayerCharacter;
     selectedPokemon = Array.isArray(trainer.Pokemon)
-      ? trainer.Pokemon.map((p: Pokemon) => (p))
+      ? trainer.Pokemon.map((p: TrainerPokemon) => (p))
       : [];
     editingTrainerOriginalName = trainerForm.OriginalName || trainer.Name;
     renderSelectedList();

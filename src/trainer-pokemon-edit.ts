@@ -75,8 +75,11 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const allowed = rankInfo ? rankInfo.attributePoints : 1;
   let used = 0;
   attributeNames.forEach(attr => {
-    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
-    used += value;
+    const minKey = attr.label;
+    const min = typeof (pokeData as any)[minKey] === 'number' ? (pokeData as any)[minKey] : 1;
+    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : min;
+    // Only count points above the minimum
+    used += Math.max(0, value - min);
   });
   const remaining = allowed - used;
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='attr-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;

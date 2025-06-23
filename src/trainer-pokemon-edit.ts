@@ -71,14 +71,30 @@ type MaxKey = typeof attributeNames[number]['maxKey'];
 function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('attributes-section');
   if (!section) return;
-  section.innerHTML = '<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Attributes</div>';
+  const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
+  const allowed = rankInfo ? rankInfo.attributePoints : 1;
+  let used = 0;
+  attributeNames.forEach(attr => {
+    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
+    used += value;
+  });
+  const remaining = allowed - used;
+  section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='attr-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
   attributeNames.forEach(attr => {
     const max = pokeData[attr.maxKey as keyof Pokemon] as number || 5;
-    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
+    // Use the attribute label for the min (e.g., 'Strength' for 'CurrentStrength')
+    const minKey = attr.label;
+    const min = typeof (pokeData as any)[minKey] === 'number' ? (pokeData as any)[minKey] : 1;
+    let value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : min;
+    // If the current value is less than the minimum, set it to the minimum
+    if (value < min) {
+      value = min;
+      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = min;
+    }
     const wrapper = document.createElement('div');
     wrapper.style.marginBottom = '8px';
     const label = document.createElement('label');
@@ -89,14 +105,14 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
     const slider = document.createElement('input');
     slider.type = 'range';
     slider.id = attr.key;
-    slider.min = '1';
+    slider.min = String(min);
     slider.max = String(max);
     slider.value = String(value);
     slider.style.width = '100%';
     slider.oninput = (e) => {
       const val = Number((e.target as HTMLInputElement).value);
       (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
-      label.textContent = `${attr.label} (${val} / ${max})`;
+      renderAttributeSliders(poke, pokeData); // re-render to update points left
     };
     wrapper.appendChild(label);
     wrapper.appendChild(slider);
@@ -119,7 +135,15 @@ type SocialMaxKey = typeof socialAttributeNames[number]['maxKey'];
 function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('social-attributes-section');
   if (!section) return;
-  section.innerHTML = '<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Social Attributes</div>';
+  const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
+  const allowed = rankInfo ? rankInfo.socialAttributePoints : 1;
+  let used = 0;
+  socialAttributeNames.forEach(attr => {
+    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
+    used += value;
+  });
+  const remaining = allowed - used;
+  section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Social Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='social-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
@@ -144,7 +168,7 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
     slider.oninput = (e) => {
       const val = Number((e.target as HTMLInputElement).value);
       (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
-      label.textContent = `${attr.label} (${val} / ${max})`;
+      renderSocialAttributeSliders(poke, pokeData); // re-render to update points left
     };
     wrapper.appendChild(label);
     wrapper.appendChild(slider);
@@ -185,8 +209,16 @@ function getSkillMax(rank: string | undefined): number {
 function renderSkillSliders(poke: TrainerPokemon) {
   const section = document.getElementById('skills-section');
   if (!section) return;
-  section.innerHTML = '<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Skills</div>';
-  const max = getSkillMax(poke.CurrentRank);
+  const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
+  const allowed = rankInfo ? rankInfo.skillPoints : 1;
+  let used = 0;
+  skillNames.forEach(attr => {
+    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 0;
+    used += value;
+  });
+  const remaining = allowed - used;
+  section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Skills <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='skill-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
+  const max = rankInfo ? rankInfo.maxSkillPoints : 1;
   const grid = document.createElement('div');
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
@@ -210,7 +242,7 @@ function renderSkillSliders(poke: TrainerPokemon) {
     slider.oninput = (e) => {
       const val = Number((e.target as HTMLInputElement).value);
       (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
-      label.textContent = `${attr.label} (${val} / ${max})`;
+      renderSkillSliders(poke); // re-render to update points left
     };
     wrapper.appendChild(label);
     wrapper.appendChild(slider);
@@ -221,8 +253,14 @@ function renderSkillSliders(poke: TrainerPokemon) {
 
 // Update skill sliders when rank changes
 currentRankSelect.addEventListener('change', () => {
-  if (selectedPoke) {
+  if (selectedPoke && selectedTrainer && allPokemon.length > 0) {
     selectedPoke.CurrentRank = currentRankSelect.value as RecommendedRank || undefined;
+    // Find the current pokemon data
+    const pokeData = allPokemon.find(p => p.DexID === selectedPoke?.DexID);
+    if (pokeData) {
+      renderAttributeSliders(selectedPoke, pokeData);
+      renderSocialAttributeSliders(selectedPoke, pokeData);
+    }
     renderSkillSliders(selectedPoke);
   }
 });

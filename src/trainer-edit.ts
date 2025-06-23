@@ -1,4 +1,4 @@
-import { Pokemon, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
+import { Pokemon, RecommendedRank, RecommendedRanks, RecommendedRankInfo } from './pokemon.js';
 import { toTrainerPokemon, Trainer, TrainerPokemon } from './trainer.js';
 
 interface TrainerForm {
@@ -199,7 +199,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get all enum values (keys) and sort by RecommendedRankNumber
     const rankEntries = Object.values(RecommendedRank)
       .filter(v => typeof v === 'string')
-      .sort((a, b) => (RecommendedRankNumber[a as RecommendedRank] ?? 0) - (RecommendedRankNumber[b as RecommendedRank] ?? 0));
+      .sort((a, b) => (RecommendedRanks[a as RecommendedRank].number ?? 0) - (RecommendedRanks[b as RecommendedRank].number ?? 0));
     console.log(rankEntries);
       rankInput.innerHTML = '<option value="">-- Select Rank --</option>';
     rankEntries.forEach(rank => {

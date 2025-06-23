@@ -1,5 +1,5 @@
 import { Trainer, TrainerPokemon } from './trainer.js';
-import { Pokemon, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
+import { Pokemon, RecommendedRank, RecommendedRanks, RecommendedRankInfo } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
 
 let allTrainers: Trainer[] = [];
@@ -28,12 +28,12 @@ currentRankSelect.innerHTML = '<option value="">-- Select Rank --</option>';
 // Sort ranks by RecommendedRankNumber
 const rankEntries = Object.values(RecommendedRank)
   .filter(v => typeof v === 'string')
-  .sort((a, b) => (RecommendedRankNumber[a as RecommendedRank] ?? 0) - (RecommendedRankNumber[b as RecommendedRank] ?? 0));
+  .sort((a, b) => (RecommendedRanks[a as RecommendedRank].number ?? 0) - (RecommendedRanks[b as RecommendedRank].number ?? 0));
 rankEntries.forEach(rank => {
   const opt = document.createElement('option');
   opt.value = rank;
   // Add image to option using innerHTML (works in most browsers)
-  const rankNum = RecommendedRankNumber[rank as RecommendedRank];
+  const rankNum = RecommendedRanks[rank as RecommendedRank].number;
   opt.innerHTML = `<img src="/recommended-rank-image/${rankNum}" style="height:1.2em;width:1.2em;vertical-align:middle;margin-right:4px;">${rank}`;
   currentRankSelect.appendChild(opt);
 });

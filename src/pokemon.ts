@@ -114,6 +114,7 @@ export enum RecommendedRank {
     Ace = "Ace",
     Amateur = "Amateur",
     Beginner = "Beginner",
+    Champion = "Champion",
     Master = "Master",
     Pro = "Pro",
     Starter = "Starter",
@@ -168,11 +169,78 @@ export const PokemonTypeColor: Record<PokemonType, string> = {
     [PokemonType.Water]: "#2980EF",
 };
 
-export const RecommendedRankNumber: Record<RecommendedRank, number> = {
-    [RecommendedRank.Starter]: 1,
-    [RecommendedRank.Beginner]: 2,
-    [RecommendedRank.Amateur]: 3,
-    [RecommendedRank.Ace]: 4,
-    [RecommendedRank.Pro]: 4,
-    [RecommendedRank.Master]: 6
+export interface RecommendedRankInfo {
+    key: RecommendedRank;
+    description: string;
+    number: number;
+    skillPoints: number;
+    attributePoints: number;
+    socialAttributePoints: number;
+    maxSkillPoints: number;
+}
+
+export const RecommendedRanks: Record<RecommendedRank, RecommendedRankInfo> = {
+    [RecommendedRank.Starter]: {
+        key: RecommendedRank.Starter,
+        description: 'Starter',
+        number: 1,
+        skillPoints: 2,
+        attributePoints: 0,
+        socialAttributePoints: 0,
+        maxSkillPoints: 1
+    },
+    [RecommendedRank.Beginner]: {
+        key: RecommendedRank.Beginner,
+        description: 'Beginner',
+        number: 2,
+        skillPoints: 6,
+        attributePoints: 2,
+        socialAttributePoints: 0,
+        maxSkillPoints: 2
+    },
+    [RecommendedRank.Amateur]: {
+        key: RecommendedRank.Amateur,
+        description: 'Amateur',
+        number: 3,
+        skillPoints: 9,
+        attributePoints: 4,
+        socialAttributePoints: 4,
+        maxSkillPoints: 3
+    },
+    [RecommendedRank.Ace]: {
+        key: RecommendedRank.Ace,
+        description: 'Ace',
+        number: 4,
+        skillPoints: 8,
+        attributePoints: 6,
+        socialAttributePoints: 6,
+        maxSkillPoints: 4
+    },
+    [RecommendedRank.Pro]: {
+        key: RecommendedRank.Pro,
+        description: 'Pro',
+        number: 4,
+        skillPoints: 12,
+        attributePoints: 8,
+        socialAttributePoints: 8,
+        maxSkillPoints: 5
+    },
+    [RecommendedRank.Master]: {
+        key: RecommendedRank.Master,
+        description: 'Master',
+        number: 6,
+        skillPoints: 12,
+        attributePoints: 8,
+        socialAttributePoints: 14,
+        maxSkillPoints: 5
+    },
+    [RecommendedRank.Champion]: {
+        key: RecommendedRank.Champion,
+        description: 'Champion',
+        number: 7,
+        skillPoints: 13,
+        attributePoints: 14,
+        socialAttributePoints: 13,
+        maxSkillPoints: 5
+    }
 };

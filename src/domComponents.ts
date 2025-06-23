@@ -1,4 +1,4 @@
-import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRankNumber } from './pokemon.js';
+import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRanks, RecommendedRankInfo } from './pokemon.js';
 /**
  * Creates a DOM element for a Pokémon card.
  * @param pokemon The Pokémon object.
@@ -61,8 +61,8 @@ export function createPokemonCard(
     ? `<div style="margin-top:10px;">
           <div class="moves-table" style="text-align:left;">
             ${pokemon.Moves.map(m => {
-              const rankImg = m.Learned && RecommendedRankNumber[m.Learned]
-                ? `<img src="/recommended-rank-image/${RecommendedRankNumber[m.Learned]}" alt="${m.Learned}" title="${m.Learned}" style="height:1.2em;width:1.2em;vertical-align:middle;margin-right:3px;">`
+              const rankImg = m.Learned && RecommendedRanks[m.Learned].number
+                ? `<img src="/recommended-rank-image/${RecommendedRanks[m.Learned].number}" alt="${m.Learned}" title="${m.Learned}" style="height:1.2em;width:1.2em;vertical-align:middle;margin-right:3px;">`
                 : '';
               return `<span class="moves-table-item">${rankImg}${m.Name}</span>`;
             }).join('')}
@@ -72,8 +72,8 @@ export function createPokemonCard(
 
   // Recommended Rank Item Sprite
   let rankImgHtml = '';
-  if (pokemon.RecommendedRank && RecommendedRankNumber[pokemon.RecommendedRank]) {
-    const rankNum = RecommendedRankNumber[pokemon.RecommendedRank];
+  if (pokemon.RecommendedRank && RecommendedRanks[pokemon.RecommendedRank].number) {
+    const rankNum = RecommendedRanks[pokemon.RecommendedRank].number;
     // The server route returns the image file for the rank number
     rankImgHtml = `<img src="/recommended-rank-image/${rankNum}" alt="Rank ${pokemon.RecommendedRank}" title="Recommended Rank: ${pokemon.RecommendedRank}" style="height:1.5em;width:1.5em;vertical-align:middle;margin-left:6px;margin-right:2px;">`;
   }

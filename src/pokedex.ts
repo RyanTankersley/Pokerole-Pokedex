@@ -1,4 +1,4 @@
-import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRank, RecommendedRankNumber } from './pokemon.js';
+import { Pokemon, PokemonType, PokemonTypeColor, RecommendedRank, RecommendedRankInfo, RecommendedRanks } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
 import { Trainer, TrainerPokemon } from './trainer.js';
 let trainerData: any[] = []; // Store trainer data globally
@@ -32,7 +32,7 @@ fetch('/trainer-list')
         if (rankFilter) {
           const rankEntries = Object.values(RecommendedRank)
             .filter(v => typeof v === 'string')
-            .sort((a, b) => (RecommendedRankNumber[a as RecommendedRank] ?? 0) - (RecommendedRankNumber[b as RecommendedRank] ?? 0));
+            .sort((a, b) => (RecommendedRanks[a as RecommendedRank].number ?? 0) - (RecommendedRanks[b as RecommendedRank].number ?? 0));
           rankEntries.forEach(rank => {
             const opt = document.createElement('option');
             opt.value = rank;

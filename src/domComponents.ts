@@ -64,7 +64,7 @@ export function createPokemonCard(
               const rankImg = m.Learned && RecommendedRanks[m.Learned].number
                 ? `<img src="/recommended-rank-image/${RecommendedRanks[m.Learned].number}" alt="${m.Learned}" title="${m.Learned}" style="height:1.2em;width:1.2em;vertical-align:middle;margin-right:3px;">`
                 : '';
-              return `<span class="moves-table-item">${rankImg}${m.Name}</span>`;
+              return `<span class="moves-table-item" data-move-name="${m.Name}">${rankImg}${m.Name}</span>`;
             }).join('')}
           </div>
        </div>`

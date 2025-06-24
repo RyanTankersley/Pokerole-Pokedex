@@ -1,6 +1,7 @@
 import { Trainer, TrainerPokemon } from './trainer.js';
 import { Pokemon, RecommendedRank, RecommendedRanks, RecommendedRankInfo } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
+import { Move } from './move.js';
 
 let allTrainers: Trainer[] = [];
 let allPokemon: Pokemon[] = [];
@@ -397,6 +398,109 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
   renderSocialAttributeSliders(poke, pokeData);
   // Render skill sliders
   renderSkillSliders(poke);
+
+  // --- Move Details Card Feature ---
+  // Ensure wrapper exists for side-by-side layout
+  let wrapper = document.getElementById('poke-info-wrapper') as HTMLDivElement | null;
+  if (!wrapper) {
+    wrapper = document.createElement('div');
+    wrapper.id = 'poke-info-wrapper';
+    wrapper.style.display = 'flex';
+    wrapper.style.alignItems = 'flex-start';
+    // Move pokeInfoDiv into wrapper
+    if (pokeInfoDiv.parentElement) {
+      pokeInfoDiv.parentElement.insertBefore(wrapper, pokeInfoDiv);
+      wrapper.appendChild(pokeInfoDiv);
+    }
+  }
+
+  // Widen the pokemon info card
+  pokeInfoDiv.style.width = '420px';
+  pokeInfoDiv.style.minWidth = '420px';
+  pokeInfoDiv.style.maxWidth = '420px';
+  pokeInfoDiv.style.flex = '0 0 420px';
+  // Ensure wrapper is wide enough
+  if (wrapper) {
+    wrapper.style.width = '680px';
+    wrapper.style.maxWidth = '100%';
+  }
+
+  // Ensure move details container exists inside wrapper
+  let moveDetailsDiv = document.getElementById('move-details-card') as HTMLDivElement | null;
+  if (!moveDetailsDiv) {
+    moveDetailsDiv = document.createElement('div');
+    moveDetailsDiv.id = 'move-details-card';
+    moveDetailsDiv.style.marginLeft = '32px';
+    moveDetailsDiv.style.display = 'inline-block';
+    moveDetailsDiv.style.verticalAlign = 'top';
+    moveDetailsDiv.style.maxWidth = '220px';
+    moveDetailsDiv.style.minWidth = '180px';
+    wrapper.appendChild(moveDetailsDiv);
+  } else {
+    moveDetailsDiv.innerHTML = '';
+    moveDetailsDiv.style.maxWidth = '220px';
+    moveDetailsDiv.style.minWidth = '180px';
+    if (moveDetailsDiv.parentElement !== wrapper) {
+      wrapper.appendChild(moveDetailsDiv);
+    }
+  }
+
+  // Attach click listeners to moves in the card
+  setTimeout(() => {
+    const moveEls = pokeInfoDiv.querySelectorAll('[data-move-name]');
+    moveEls.forEach(el => {
+      el.addEventListener('click', () => {
+        const moveName = el.getAttribute('data-move-name');
+        if (!moveName) return;
+        // Show move details card with move name as title
+        moveDetailsDiv!.innerHTML = `
+          <div style="background:#eef2ff;padding:18px 24px;border-radius:10px;box-shadow:0 2px 8px #0001;min-width:260px;max-width:340px;">
+            <div style="font-size:1.3em;font-weight:700;color:#3730a3;margin-bottom:8px;">${moveName}</div>
+          </div>
+        `;
+      });
+    });
+  }, 0);
+
+  // Responsive layout for poke-info-wrapper
+  const trainerForm = document.querySelector('.trainer-pokemon-form') as HTMLElement | null;
+  if (trainerForm) {
+    trainerForm.style.maxWidth = '800px';
+  }
+  if (wrapper) {
+    wrapper.style.flexWrap = 'wrap';
+    wrapper.style.width = '100%';
+  }
+  pokeInfoDiv.style.width = '420px';
+  pokeInfoDiv.style.minWidth = '320px';
+  pokeInfoDiv.style.maxWidth = '400px';
+  pokeInfoDiv.style.flex = '0 0 400px';
+  if (moveDetailsDiv) {
+    moveDetailsDiv.style.maxWidth = '220px';
+    moveDetailsDiv.style.minWidth = '180px';
+    moveDetailsDiv.style.flex = '1 1 180px';
+    moveDetailsDiv.style.marginLeft = '32px';
+  }
+  // Add responsive behavior: stack on small screens
+  if (wrapper) {
+    wrapper.style.gap = '0';
+    wrapper.style.rowGap = '24px';
+    wrapper.style.columnGap = '32px';
+    wrapper.style.boxSizing = 'border-box';
+    // Add a media query for stacking
+    const styleId = 'poke-info-responsive-style';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        @media (max-width: 900px) {
+          #poke-info-wrapper { flex-direction: column !important; }
+          #move-details-card { margin-left: 0 !important; margin-top: 24px !important; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  }
 }
 
 let selectedTrainer: Trainer | undefined;

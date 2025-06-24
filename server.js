@@ -47,18 +47,18 @@ const trainerSchema = new mongoose.Schema({
       CurrentClever: { type: Number, default: 1 },
       CurrentCute: { type: Number, default: 1 },
       // Skill fields for trainer's Pokémon
-      SkillBrawl: { type: Number, default: 1 },
-      SkillChannel: { type: Number, default: 1 },
-      SkillClash: { type: Number, default: 1 },
-      SkillEvasion: { type: Number, default: 1 },
-      SkillAlert: { type: Number, default: 1 },
-      SkillAthletic: { type: Number, default: 1 },
-      SkillNature: { type: Number, default: 1 },
-      SkillStealth: { type: Number, default: 1 },
-      SkillAllure: { type: Number, default: 1 },
-      SkillEtiquette: { type: Number, default: 1 },
-      SkillIntimidate: { type: Number, default: 1 },
-      SkillPerform: { type: Number, default: 1 }
+      SkillBrawl: { type: Number, default: 0 },
+      SkillChannel: { type: Number, default: 0 },
+      SkillClash: { type: Number, default: 0 },
+      SkillEvasion: { type: Number, default: 0 },
+      SkillAlert: { type: Number, default: 0 },
+      SkillAthletic: { type: Number, default: 0 },
+      SkillNature: { type: Number, default: 0 },
+      SkillStealth: { type: Number, default: 0 },
+      SkillAllure: { type: Number, default: 0 },
+      SkillEtiquette: { type: Number, default: 0 },
+      SkillIntimidate: { type: Number, default: 0 },
+      SkillPerform: { type: Number, default: 0 }
     }
   ],
   Rank: String, // RecommendedRank as string
@@ -206,18 +206,18 @@ app.get('/trainer-list', async (req, res) => {
             CurrentClever: typeof p.CurrentClever === 'number' ? p.CurrentClever : 1,
             CurrentCute: typeof p.CurrentCute === 'number' ? p.CurrentCute : 1,
             // Skills
-            SkillBrawl: typeof p.SkillBrawl === 'number' ? p.SkillBrawl : 1,
-            SkillChannel: typeof p.SkillChannel === 'number' ? p.SkillChannel : 1,
-            SkillClash: typeof p.SkillClash === 'number' ? p.SkillClash : 1,
-            SkillEvasion: typeof p.SkillEvasion === 'number' ? p.SkillEvasion : 1,
-            SkillAlert: typeof p.SkillAlert === 'number' ? p.SkillAlert : 1,
-            SkillAthletic: typeof p.SkillAthletic === 'number' ? p.SkillAthletic : 1,
-            SkillNature: typeof p.SkillNature === 'number' ? p.SkillNature : 1,
-            SkillStealth: typeof p.SkillStealth === 'number' ? p.SkillStealth : 1,
-            SkillAllure: typeof p.SkillAllure === 'number' ? p.SkillAllure : 1,
-            SkillEtiquette: typeof p.SkillEtiquette === 'number' ? p.SkillEtiquette : 1,
-            SkillIntimidate: typeof p.SkillIntimidate === 'number' ? p.SkillIntimidate : 1,
-            SkillPerform: typeof p.SkillPerform === 'number' ? p.SkillPerform : 1
+            SkillBrawl: typeof p.SkillBrawl === 'number' ? p.SkillBrawl : 0,
+            SkillChannel: typeof p.SkillChannel === 'number' ? p.SkillChannel : 0,
+            SkillClash: typeof p.SkillClash === 'number' ? p.SkillClash : 0,
+            SkillEvasion: typeof p.SkillEvasion === 'number' ? p.SkillEvasion : 0,
+            SkillAlert: typeof p.SkillAlert === 'number' ? p.SkillAlert : 0,
+            SkillAthletic: typeof p.SkillAthletic === 'number' ? p.SkillAthletic : 0,
+            SkillNature: typeof p.SkillNature === 'number' ? p.SkillNature : 0,
+            SkillStealth: typeof p.SkillStealth === 'number' ? p.SkillStealth : 0,
+            SkillAllure: typeof p.SkillAllure === 'number' ? p.SkillAllure : 0,
+            SkillEtiquette: typeof p.SkillEtiquette === 'number' ? p.SkillEtiquette : 0,
+            SkillIntimidate: typeof p.SkillIntimidate === 'number' ? p.SkillIntimidate : 0,
+            SkillPerform: typeof p.SkillPerform === 'number' ? p.SkillPerform : 0
           };
         });
       }

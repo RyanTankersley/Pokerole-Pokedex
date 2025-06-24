@@ -143,7 +143,8 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   let used = 0;
   socialAttributeNames.forEach(attr => {
     const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
-    used += value;
+    // Only count points above the minimum (1) for each social attribute
+    used += Math.max(0, value - 1);
   });
   const remaining = allowed - used;
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Social Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='social-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
@@ -197,6 +198,12 @@ const skillNames = [
 ] as const;
 type SkillKey = typeof skillNames[number]['key'];
 
+// Helper for getting a skill value, defaulting to 0
+function getSkillValue(poke: TrainerPokemon, key: SkillKey): number {
+  const val = poke[key];
+  return typeof val === 'number' ? val : 0;
+}
+
 function getSkillMax(rank: string | undefined): number {
   switch (rank) {
     case 'Starter': return 1;
@@ -213,10 +220,11 @@ function renderSkillSliders(poke: TrainerPokemon) {
   const section = document.getElementById('skills-section');
   if (!section) return;
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
+  // console.log(rankInfo)
   const allowed = rankInfo ? rankInfo.skillPoints : 1;
   let used = 0;
   skillNames.forEach(attr => {
-    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 0;
+    const value = getSkillValue(poke, attr.key);
     used += value;
   });
   const remaining = allowed - used;
@@ -227,7 +235,12 @@ function renderSkillSliders(poke: TrainerPokemon) {
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
   skillNames.forEach(attr => {
-    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 0;
+    let value = getSkillValue(poke, attr.key);
+    // If value is undefined or less than 0, set to 0
+    if (typeof value !== 'number' || value < 0) {
+      value = 0;
+      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = 0;
+    }
     const wrapper = document.createElement('div');
     wrapper.style.marginBottom = '8px';
     const label = document.createElement('label');
@@ -289,6 +302,7 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
   // Render social attribute sliders
   renderSocialAttributeSliders(poke, pokeData);
   // Render skill sliders
+  console.log(poke);
   renderSkillSliders(poke);
 }
 

@@ -195,7 +195,7 @@ export const RecommendedRanks: Record<RecommendedRank, RecommendedRankInfo> = {
         number: 2,
         skillPoints: 6,
         attributePoints: 2,
-        socialAttributePoints: 0,
+        socialAttributePoints: 2,
         maxSkillPoints: 2
     },
     [RecommendedRank.Amateur]: {
@@ -243,4 +243,4 @@ export const RecommendedRanks: Record<RecommendedRank, RecommendedRankInfo> = {
         socialAttributePoints: 13,
         maxSkillPoints: 5
     }
-};
+}

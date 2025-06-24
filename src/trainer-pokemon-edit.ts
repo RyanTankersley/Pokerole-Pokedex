@@ -1,9 +1,8 @@
 import { Trainer, TrainerPokemon } from './trainer.js';
 import { Pokemon, RecommendedRank, RecommendedRanks, RecommendedRankInfo } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
-import { Move } from './move.js';
 import { createMoveCard, createMoveNotFoundCard } from './moveComponent.js';
-import { createSlider } from './sliderComponent.js';
+import { createSliderSection } from './sliderSectionComponent.js';
 
 let allTrainers: Trainer[] = [];
 let allPokemon: Pokemon[] = [];
@@ -68,8 +67,6 @@ const attributeNames = [
   { key: 'CurrentSpecial', label: 'Special', maxKey: 'MaxSpecial' },
   { key: 'CurrentInsight', label: 'Insight', maxKey: 'MaxInsight' }
 ] as const;
-type AttributeKey = typeof attributeNames[number]['key'];
-type MaxKey = typeof attributeNames[number]['maxKey'];
 
 function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('attributes-section');
@@ -84,32 +81,34 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
     used += Math.max(0, value - min);
   });
   const remaining = allowed - used;
-  section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='attr-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
-  const grid = document.createElement('div');
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = '1fr 1fr';
-  grid.style.gap = '12px';
-  attributeNames.forEach(attr => {
+  section.innerHTML = '';
+  const sliders = attributeNames.map(attr => {
     const max = pokeData[attr.maxKey as keyof Pokemon] as number || 5;
     const minKey = attr.label;
     const min = typeof (pokeData as any)[minKey] === 'number' ? (pokeData as any)[minKey] : 1;
     let value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : min;
     if (value < min) value = min;
-    const slider = createSlider({
+    return {
       label: attr.label,
       value,
       min,
       max,
       remaining,
-      onChange: (newValue) => {
+      onChange: (newValue: number) => {
         (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
         renderAttributeSliders(poke, pokeData);
       },
       disabled: false
-    });
-    grid.appendChild(slider);
+    };
   });
-  section.appendChild(grid);
+  section.appendChild(createSliderSection({
+    sectionLabel: 'Attributes',
+    sliders,
+    columns: 2,
+    remainingLabel: 'Points left',
+    remaining,
+    allowed,
+  }));
 }
 
 // Social attribute slider config
@@ -120,8 +119,6 @@ const socialAttributeNames = [
   { key: 'CurrentClever', label: 'Clever', maxKey: 'MaxClever' },
   { key: 'CurrentCute', label: 'Cute', maxKey: 'MaxCute' }
 ] as const;
-type SocialAttributeKey = typeof socialAttributeNames[number]['key'];
-type SocialMaxKey = typeof socialAttributeNames[number]['maxKey'];
 
 function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('social-attributes-section');
@@ -134,30 +131,32 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
     used += Math.max(0, value - 1);
   });
   const remaining = allowed - used;
-  section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Social Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='social-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
-  const grid = document.createElement('div');
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = '1fr 1fr';
-  grid.style.gap = '12px';
-  socialAttributeNames.forEach(attr => {
+  section.innerHTML = '';
+  const sliders = socialAttributeNames.map(attr => {
     const max = 5;
     let value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
     if (value < 1) value = 1;
-    const slider = createSlider({
+    return {
       label: attr.label,
       value,
       min: 1,
       max,
       remaining,
-      onChange: (newValue) => {
+      onChange: (newValue: number) => {
         (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
         renderSocialAttributeSliders(poke, pokeData);
       },
       disabled: false
-    });
-    grid.appendChild(slider);
+    };
   });
-  section.appendChild(grid);
+  section.appendChild(createSliderSection({
+    sectionLabel: 'Social Attributes',
+    sliders,
+    columns: 2,
+    remainingLabel: 'Points left',
+    remaining,
+    allowed,
+  }));
 }
 
 // Skills slider config
@@ -193,30 +192,32 @@ function renderSkillSliders(poke: TrainerPokemon) {
     used += getSkillValue(poke, attr.key);
   });
   const remaining = allowed - used;
-  section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Skills <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='skill-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
+  section.innerHTML = '';
   const max = rankInfo ? rankInfo.maxSkillPoints : 1;
-  const grid = document.createElement('div');
-  grid.style.display = 'grid';
-  grid.style.gridTemplateColumns = '1fr 1fr';
-  grid.style.gap = '12px';
-  skillNames.forEach(attr => {
+  const sliders = skillNames.map(attr => {
     let value = getSkillValue(poke, attr.key);
     if (typeof value !== 'number' || value < 0) value = 0;
-    const slider = createSlider({
+    return {
       label: attr.label,
       value,
-      min: 0, // Ensure min is 0 for skills
+      min: 0,
       max,
       remaining,
-      onChange: (newValue) => {
+      onChange: (newValue: number) => {
         (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
         renderSkillSliders(poke);
       },
       disabled: false
-    });
-    grid.appendChild(slider);
+    };
   });
-  section.appendChild(grid);
+  section.appendChild(createSliderSection({
+    sectionLabel: 'Skills',
+    sliders,
+    columns: 2,
+    remainingLabel: 'Points left',
+    remaining,
+    allowed,
+  }));
 }
 
 // Update skill sliders when rank changes

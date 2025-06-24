@@ -24,7 +24,7 @@ currentRankSelect.style.padding = '8px';
 currentRankSelect.style.marginBottom = '16px';
 currentRankSelect.style.borderRadius = '6px';
 currentRankSelect.style.border = '1px solid #c7d2fe';
-currentRankSelect.innerHTML = '<option value="">-- Select Rank --</option>';
+currentRankSelect.innerHTML = '';
 // Sort ranks by RecommendedRankNumber
 const rankEntries = Object.values(RecommendedRank)
   .filter(v => typeof v === 'string')
@@ -220,12 +220,10 @@ function renderSkillSliders(poke: TrainerPokemon) {
   const section = document.getElementById('skills-section');
   if (!section) return;
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
-  // console.log(rankInfo)
   const allowed = rankInfo ? rankInfo.skillPoints : 1;
   let used = 0;
   skillNames.forEach(attr => {
-    const value = getSkillValue(poke, attr.key);
-    used += value;
+    used += getSkillValue(poke, attr.key);
   });
   const remaining = allowed - used;
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Skills <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='skill-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
@@ -236,10 +234,14 @@ function renderSkillSliders(poke: TrainerPokemon) {
   grid.style.gap = '12px';
   skillNames.forEach(attr => {
     let value = getSkillValue(poke, attr.key);
-    // If value is undefined or less than 0, set to 0
     if (typeof value !== 'number' || value < 0) {
       value = 0;
       (poke[attr.key as keyof TrainerPokemon] as number | undefined) = 0;
+    }
+    // If no points left and this slider is not already at its value, lock it
+    let sliderMax = max;
+    if (remaining <= 0 && value < max) {
+      sliderMax = value; // can't increase further
     }
     const wrapper = document.createElement('div');
     wrapper.style.marginBottom = '8px';
@@ -252,7 +254,7 @@ function renderSkillSliders(poke: TrainerPokemon) {
     slider.type = 'range';
     slider.id = attr.key;
     slider.min = '0';
-    slider.max = String(max);
+    slider.max = String(sliderMax);
     slider.value = String(value);
     slider.style.width = '100%';
     slider.oninput = (e) => {
@@ -295,14 +297,16 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
   const card = createPokemonCard(pokeData, { showDetails: true });
   pokeInfoDiv.appendChild(card);
   showTrainerAndPokemonLabels(trainer, poke, pokeData);
-  // Set current rank select
-  currentRankSelect.value = poke.CurrentRank || '';
+  // Set current rank select, default to Starter if not set
+  if (!poke.CurrentRank) {
+    poke.CurrentRank = RecommendedRank.Starter;
+  }
+  currentRankSelect.value = poke.CurrentRank;
   // Render attribute sliders
   renderAttributeSliders(poke, pokeData);
   // Render social attribute sliders
   renderSocialAttributeSliders(poke, pokeData);
   // Render skill sliders
-  console.log(poke);
   renderSkillSliders(poke);
 }
 

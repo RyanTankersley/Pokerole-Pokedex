@@ -94,8 +94,21 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
     if (value < min) value = min;
     const wrapper = document.createElement('div');
     wrapper.style.display = 'flex';
-    wrapper.style.alignItems = 'center';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.alignItems = 'flex-start'; // left align
     wrapper.style.marginBottom = '8px';
+    // Label above
+    const label = document.createElement('span');
+    label.textContent = attr.label;
+    label.style.fontWeight = '600';
+    label.style.marginBottom = '4px';
+    label.style.textAlign = 'left'; // left align
+    wrapper.appendChild(label);
+    // Row for minus, bubbles, plus
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.justifyContent = 'flex-start'; // left align
     // Minus button
     const minusBtn = document.createElement('button');
     minusBtn.textContent = '-';
@@ -107,7 +120,7 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
         renderAttributeSliders(poke, pokeData);
       }
     };
-    wrapper.appendChild(minusBtn);
+    row.appendChild(minusBtn);
     // Bubbles
     for (let i = min; i <= max; i++) {
       const bubble = document.createElement('span');
@@ -119,7 +132,7 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
       bubble.style.border = '2px solid #6366f1';
       bubble.style.background = i <= value ? '#6366f1' : 'transparent';
       bubble.style.transition = 'background 0.2s';
-      wrapper.appendChild(bubble);
+      row.appendChild(bubble);
     }
     // Plus button
     const plusBtn = document.createElement('button');
@@ -132,13 +145,8 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
         renderAttributeSliders(poke, pokeData);
       }
     };
-    wrapper.appendChild(plusBtn);
-    // Label
-    const label = document.createElement('span');
-    label.textContent = ` ${attr.label} (${value} / ${max})`;
-    label.style.marginLeft = '12px';
-    label.style.fontWeight = '600';
-    wrapper.appendChild(label);
+    row.appendChild(plusBtn);
+    wrapper.appendChild(row);
     grid.appendChild(wrapper);
   });
   section.appendChild(grid);
@@ -177,8 +185,21 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
     if (value < 1) value = 1;
     const wrapper = document.createElement('div');
     wrapper.style.display = 'flex';
-    wrapper.style.alignItems = 'center';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.alignItems = 'flex-start'; // left align
     wrapper.style.marginBottom = '8px';
+    // Label above
+    const label = document.createElement('span');
+    label.textContent = attr.label;
+    label.style.fontWeight = '600';
+    label.style.marginBottom = '4px';
+    label.style.textAlign = 'left'; // left align
+    wrapper.appendChild(label);
+    // Row for minus, bubbles, plus
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.justifyContent = 'flex-start'; // left align
     // Minus button
     const minusBtn = document.createElement('button');
     minusBtn.textContent = '-';
@@ -190,7 +211,7 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
         renderSocialAttributeSliders(poke, pokeData);
       }
     };
-    wrapper.appendChild(minusBtn);
+    row.appendChild(minusBtn);
     // Bubbles
     for (let i = 1; i <= max; i++) {
       const bubble = document.createElement('span');
@@ -202,7 +223,7 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
       bubble.style.border = '2px solid #6366f1';
       bubble.style.background = i <= value ? '#6366f1' : 'transparent';
       bubble.style.transition = 'background 0.2s';
-      wrapper.appendChild(bubble);
+      row.appendChild(bubble);
     }
     // Plus button
     const plusBtn = document.createElement('button');
@@ -215,13 +236,8 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
         renderSocialAttributeSliders(poke, pokeData);
       }
     };
-    wrapper.appendChild(plusBtn);
-    // Label
-    const label = document.createElement('span');
-    label.textContent = ` ${attr.label} (${value} / ${max})`;
-    label.style.marginLeft = '12px';
-    label.style.fontWeight = '600';
-    wrapper.appendChild(label);
+    row.appendChild(plusBtn);
+    wrapper.appendChild(row);
     grid.appendChild(wrapper);
   });
   section.appendChild(grid);
@@ -283,8 +299,21 @@ function renderSkillSliders(poke: TrainerPokemon) {
     if (typeof value !== 'number' || value < 0) value = 0;
     const wrapper = document.createElement('div');
     wrapper.style.display = 'flex';
-    wrapper.style.alignItems = 'center';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.alignItems = 'flex-start'; // left align
     wrapper.style.marginBottom = '8px';
+    // Label above
+    const label = document.createElement('span');
+    label.textContent = attr.label;
+    label.style.fontWeight = '600';
+    label.style.marginBottom = '4px';
+    label.style.textAlign = 'left'; // left align
+    wrapper.appendChild(label);
+    // Row for minus, bubbles, plus
+    const row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.alignItems = 'center';
+    row.style.justifyContent = 'flex-start'; // left align
     // Minus button
     const minusBtn = document.createElement('button');
     minusBtn.textContent = '-';
@@ -296,7 +325,7 @@ function renderSkillSliders(poke: TrainerPokemon) {
         renderSkillSliders(poke);
       }
     };
-    wrapper.appendChild(minusBtn);
+    row.appendChild(minusBtn);
     // Bubbles
     for (let i = 1; i <= max; i++) {
       const bubble = document.createElement('span');
@@ -308,7 +337,7 @@ function renderSkillSliders(poke: TrainerPokemon) {
       bubble.style.border = '2px solid #6366f1';
       bubble.style.background = i <= value ? '#6366f1' : 'transparent';
       bubble.style.transition = 'background 0.2s';
-      wrapper.appendChild(bubble);
+      row.appendChild(bubble);
     }
     // Plus button
     const plusBtn = document.createElement('button');
@@ -321,13 +350,8 @@ function renderSkillSliders(poke: TrainerPokemon) {
         renderSkillSliders(poke);
       }
     };
-    wrapper.appendChild(plusBtn);
-    // Label
-    const label = document.createElement('span');
-    label.textContent = ` ${attr.label} (${value} / ${max})`;
-    label.style.marginLeft = '12px';
-    label.style.fontWeight = '600';
-    wrapper.appendChild(label);
+    row.appendChild(plusBtn);
+    wrapper.appendChild(row);
     grid.appendChild(wrapper);
   });
   section.appendChild(grid);
@@ -340,6 +364,7 @@ currentRankSelect.addEventListener('change', () => {
     // Find the current pokemon data
     const pokeData = allPokemon.find(p => p.DexID === selectedPoke?.DexID);
     if (pokeData) {
+      // Update attributes, social attributes, and skills based on new rank
       renderAttributeSliders(selectedPoke, pokeData);
       renderSocialAttributeSliders(selectedPoke, pokeData);
     }

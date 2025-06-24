@@ -72,6 +72,20 @@ type MaxKey = typeof attributeNames[number]['maxKey'];
 function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('attributes-section');
   if (!section) return;
+  // Inject responsive style for attribute sliders if not present
+  const styleId = 'attribute-slider-responsive-style';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      @media (max-width: 700px) {
+        .attribute-slider-grid { grid-template-columns: 1fr !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  // Add responsive class for grid
+  section.classList.add('responsive-slider-section');
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
   const allowed = rankInfo ? rankInfo.attributePoints : 1;
   let used = 0;
@@ -84,6 +98,7 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const remaining = allowed - used;
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='attr-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const grid = document.createElement('div');
+  grid.className = 'attribute-slider-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
@@ -167,6 +182,20 @@ type SocialMaxKey = typeof socialAttributeNames[number]['maxKey'];
 function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('social-attributes-section');
   if (!section) return;
+  // Inject responsive style for social attribute sliders if not present
+  const styleId = 'social-attribute-slider-responsive-style';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      @media (max-width: 700px) {
+        .social-attribute-slider-grid { grid-template-columns: 1fr !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  // Add responsive class for grid
+  section.classList.add('responsive-slider-section');
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
   const allowed = rankInfo ? rankInfo.socialAttributePoints : 1;
   let used = 0;
@@ -177,6 +206,7 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const remaining = allowed - used;
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Social Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='social-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const grid = document.createElement('div');
+  grid.className = 'social-attribute-slider-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
@@ -282,6 +312,20 @@ function getSkillMax(rank: string | undefined): number {
 function renderSkillSliders(poke: TrainerPokemon) {
   const section = document.getElementById('skills-section');
   if (!section) return;
+  // Inject responsive style for skill sliders if not present
+  const styleId = 'skill-slider-responsive-style';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      @media (max-width: 700px) {
+        .skill-slider-grid { grid-template-columns: 1fr !important; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  // Add responsive class for grid
+  section.classList.add('responsive-slider-section');
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
   const allowed = rankInfo ? rankInfo.skillPoints : 1;
   let used = 0;
@@ -292,6 +336,7 @@ function renderSkillSliders(poke: TrainerPokemon) {
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Skills <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='skill-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const max = rankInfo ? rankInfo.maxSkillPoints : 1;
   const grid = document.createElement('div');
+  grid.className = 'skill-slider-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
@@ -502,6 +547,28 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
     }
   }
 }
+
+// Add a single <style> tag for responsive slider grids if not present
+(function ensureResponsiveSliderStyle() {
+  const styleId = 'responsive-slider-style';
+  if (!document.getElementById(styleId)) {
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      .responsive-slider-section .slider-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 700px) {
+        .responsive-slider-section .slider-grid {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+})();
 
 let selectedTrainer: Trainer | undefined;
 let selectedPoke: TrainerPokemon | undefined;

@@ -301,6 +301,108 @@ const pokemonSchema = new mongoose.Schema({
 
 const PokemonModel = mongoose.model('Pokemon', pokemonSchema);
 
+// Mongoose Move schema and model
+const moveSchema = new mongoose.Schema({
+  Name: { type: String, required: true },
+  Type: { type: String, required: true },
+  Power: { type: Number, required: true },
+  Damage1: String,
+  Damage2: String,
+  Accuracy1: String,
+  Accuracy2: String,
+  Target: String,
+  Effect: String,
+  Description: String,
+  _id: { type: String, required: true },
+  Attributes: {
+    Priority: Number,
+    AlwaysCrit: Boolean,
+    AccuracyReduction: Number,
+    Lethal: Boolean,
+    BlockDamagePool: Number,
+    Recoil: Boolean,
+    ShieldMove: Boolean,
+    SwitcherMove: Boolean,
+    SuccessiveActions: Boolean,
+    NeverFail: Boolean,
+    SoundBased: Boolean,
+    PhysicalRanged: Boolean,
+    FistBased: Boolean,
+    Rampage: Boolean,
+    IgnoreDefenses: Boolean,
+    HighCritical: Boolean,
+    Charge: Boolean,
+    DestroyShield: Boolean,
+    UserFaints: Boolean,
+    MustRecharge: Boolean,
+    ResistedWithDefense: Boolean,
+    IgnoreShield: Boolean,
+    DoubleAction: Boolean,
+    ResetTerrain: Boolean
+  },
+  AddedEffects: {
+    Ailments: [{
+      Type: String,
+      Affects: String,
+      ChanceDice: Number,
+      Rounds: Number,
+      TargetType: String
+    }],
+    StatChanges: [{
+      Stats: [String],
+      Stages: Number,
+      Affects: String,
+      ChanceDice: Number
+    }],
+    TerrainEffect: String,
+    Heal: {
+      Type: String,
+      Target: String,
+      WillPointCost: Number,
+      Percentage: Number
+    },
+    FixedDamage: {
+      Type: String,
+      Value: Number,
+      MaxValue: Number,
+      Target: String
+    },
+    IgnoreShield: Boolean,
+    AilmentHeal: [String]
+  },
+  Category: { type: String, required: true }
+}, { collection: 'Moves' });
+
+const MoveModel = mongoose.model('Move', moveSchema);
+
+// GET /get-moves - returns all moves from the MongoDB Moves collection
+app.get('/get-moves', async (req, res) => {
+  try {
+    const moves = await MoveModel.find({}).lean();
+    res.json(moves);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch moves from database.' });
+  }
+});
+
+// GET /get-moves/:dexid - returns all move objects for a specific Pokémon by DexID
+app.get('/get-moves/:dexid', async (req, res) => {
+  try {
+    const dexid = req.params.dexid;
+    const pokemon = await PokemonModel.findOne({ DexID: dexid }).lean();
+    if (!pokemon || !Array.isArray(pokemon.Moves)) {
+      return res.status(404).json({ error: 'Pokémon not found or has no moves.' });
+    }
+    // Get all move names for this Pokémon
+    const moveNames = pokemon.Moves.map(m => m.Name).filter(Boolean);
+    // Find all moves in the Moves collection with those names
+    const moves = await MoveModel.find({ Name: { $in: moveNames } }).lean();
+    res.json(moves);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch moves for this Pokémon.' });
+  }
+});
+
 app.listen(3000, () => {
   console.log('Server running at http://localhost:3000');
 });

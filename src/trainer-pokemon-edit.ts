@@ -78,7 +78,6 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
     const minKey = attr.label;
     const min = typeof (pokeData as any)[minKey] === 'number' ? (pokeData as any)[minKey] : 1;
     const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : min;
-    // Only count points above the minimum
     used += Math.max(0, value - min);
   });
   const remaining = allowed - used;
@@ -89,36 +88,57 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   grid.style.gap = '12px';
   attributeNames.forEach(attr => {
     const max = pokeData[attr.maxKey as keyof Pokemon] as number || 5;
-    // Use the attribute label for the min (e.g., 'Strength' for 'CurrentStrength')
     const minKey = attr.label;
     const min = typeof (pokeData as any)[minKey] === 'number' ? (pokeData as any)[minKey] : 1;
     let value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : min;
-    // If the current value is less than the minimum, set it to the minimum
-    if (value < min) {
-      value = min;
-      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = min;
-    }
+    if (value < min) value = min;
     const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.alignItems = 'center';
     wrapper.style.marginBottom = '8px';
-    const label = document.createElement('label');
-    label.htmlFor = attr.key;
-    label.textContent = `${attr.label} (${value} / ${max})`;
-    label.style.display = 'block';
-    label.style.fontWeight = '600';
-    const slider = document.createElement('input');
-    slider.type = 'range';
-    slider.id = attr.key;
-    slider.min = String(min);
-    slider.max = String(max);
-    slider.value = String(value);
-    slider.style.width = '100%';
-    slider.oninput = (e) => {
-      const val = Number((e.target as HTMLInputElement).value);
-      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
-      renderAttributeSliders(poke, pokeData); // re-render to update points left
+    // Minus button
+    const minusBtn = document.createElement('button');
+    minusBtn.textContent = '-';
+    minusBtn.style.marginRight = '8px';
+    minusBtn.disabled = value <= min;
+    minusBtn.onclick = () => {
+      if (value > min) {
+        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = value - 1;
+        renderAttributeSliders(poke, pokeData);
+      }
     };
+    wrapper.appendChild(minusBtn);
+    // Bubbles
+    for (let i = min; i <= max; i++) {
+      const bubble = document.createElement('span');
+      bubble.style.display = 'inline-block';
+      bubble.style.width = '20px';
+      bubble.style.height = '20px';
+      bubble.style.margin = '0 2px';
+      bubble.style.borderRadius = '50%';
+      bubble.style.border = '2px solid #6366f1';
+      bubble.style.background = i <= value ? '#6366f1' : 'transparent';
+      bubble.style.transition = 'background 0.2s';
+      wrapper.appendChild(bubble);
+    }
+    // Plus button
+    const plusBtn = document.createElement('button');
+    plusBtn.textContent = '+';
+    plusBtn.style.marginLeft = '8px';
+    plusBtn.disabled = value >= max || remaining <= 0;
+    plusBtn.onclick = () => {
+      if (value < max && remaining > 0) {
+        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = value + 1;
+        renderAttributeSliders(poke, pokeData);
+      }
+    };
+    wrapper.appendChild(plusBtn);
+    // Label
+    const label = document.createElement('span');
+    label.textContent = ` ${attr.label} (${value} / ${max})`;
+    label.style.marginLeft = '12px';
+    label.style.fontWeight = '600';
     wrapper.appendChild(label);
-    wrapper.appendChild(slider);
     grid.appendChild(wrapper);
   });
   section.appendChild(grid);
@@ -143,7 +163,6 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   let used = 0;
   socialAttributeNames.forEach(attr => {
     const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
-    // Only count points above the minimum (1) for each social attribute
     used += Math.max(0, value - 1);
   });
   const remaining = allowed - used;
@@ -153,29 +172,56 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
   socialAttributeNames.forEach(attr => {
-    const max = 5; // Social attributes always max at 5
-    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
+    const max = 5;
+    let value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
+    if (value < 1) value = 1;
     const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.alignItems = 'center';
     wrapper.style.marginBottom = '8px';
-    const label = document.createElement('label');
-    label.htmlFor = attr.key;
-    label.textContent = `${attr.label} (${value} / ${max})`;
-    label.style.display = 'block';
-    label.style.fontWeight = '600';
-    const slider = document.createElement('input');
-    slider.type = 'range';
-    slider.id = attr.key;
-    slider.min = '1';
-    slider.max = String(max);
-    slider.value = String(value);
-    slider.style.width = '100%';
-    slider.oninput = (e) => {
-      const val = Number((e.target as HTMLInputElement).value);
-      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
-      renderSocialAttributeSliders(poke, pokeData); // re-render to update points left
+    // Minus button
+    const minusBtn = document.createElement('button');
+    minusBtn.textContent = '-';
+    minusBtn.style.marginRight = '8px';
+    minusBtn.disabled = value <= 1;
+    minusBtn.onclick = () => {
+      if (value > 1) {
+        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = value - 1;
+        renderSocialAttributeSliders(poke, pokeData);
+      }
     };
+    wrapper.appendChild(minusBtn);
+    // Bubbles
+    for (let i = 1; i <= max; i++) {
+      const bubble = document.createElement('span');
+      bubble.style.display = 'inline-block';
+      bubble.style.width = '20px';
+      bubble.style.height = '20px';
+      bubble.style.margin = '0 2px';
+      bubble.style.borderRadius = '50%';
+      bubble.style.border = '2px solid #6366f1';
+      bubble.style.background = i <= value ? '#6366f1' : 'transparent';
+      bubble.style.transition = 'background 0.2s';
+      wrapper.appendChild(bubble);
+    }
+    // Plus button
+    const plusBtn = document.createElement('button');
+    plusBtn.textContent = '+';
+    plusBtn.style.marginLeft = '8px';
+    plusBtn.disabled = value >= max || remaining <= 0;
+    plusBtn.onclick = () => {
+      if (value < max && remaining > 0) {
+        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = value + 1;
+        renderSocialAttributeSliders(poke, pokeData);
+      }
+    };
+    wrapper.appendChild(plusBtn);
+    // Label
+    const label = document.createElement('span');
+    label.textContent = ` ${attr.label} (${value} / ${max})`;
+    label.style.marginLeft = '12px';
+    label.style.fontWeight = '600';
     wrapper.appendChild(label);
-    wrapper.appendChild(slider);
     grid.appendChild(wrapper);
   });
   section.appendChild(grid);
@@ -234,36 +280,54 @@ function renderSkillSliders(poke: TrainerPokemon) {
   grid.style.gap = '12px';
   skillNames.forEach(attr => {
     let value = getSkillValue(poke, attr.key);
-    if (typeof value !== 'number' || value < 0) {
-      value = 0;
-      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = 0;
-    }
-    // If no points left and this slider is not already at its value, lock it
-    let sliderMax = max;
-    if (remaining <= 0 && value < max) {
-      sliderMax = value; // can't increase further
-    }
+    if (typeof value !== 'number' || value < 0) value = 0;
     const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.alignItems = 'center';
     wrapper.style.marginBottom = '8px';
-    const label = document.createElement('label');
-    label.htmlFor = attr.key;
-    label.textContent = `${attr.label} (${value} / ${max})`;
-    label.style.display = 'block';
-    label.style.fontWeight = '600';
-    const slider = document.createElement('input');
-    slider.type = 'range';
-    slider.id = attr.key;
-    slider.min = '0';
-    slider.max = String(sliderMax);
-    slider.value = String(value);
-    slider.style.width = '100%';
-    slider.oninput = (e) => {
-      const val = Number((e.target as HTMLInputElement).value);
-      (poke[attr.key as keyof TrainerPokemon] as number | undefined) = val;
-      renderSkillSliders(poke); // re-render to update points left
+    // Minus button
+    const minusBtn = document.createElement('button');
+    minusBtn.textContent = '-';
+    minusBtn.style.marginRight = '8px';
+    minusBtn.disabled = value <= 0;
+    minusBtn.onclick = () => {
+      if (value > 0) {
+        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = value - 1;
+        renderSkillSliders(poke);
+      }
     };
+    wrapper.appendChild(minusBtn);
+    // Bubbles
+    for (let i = 1; i <= max; i++) {
+      const bubble = document.createElement('span');
+      bubble.style.display = 'inline-block';
+      bubble.style.width = '20px';
+      bubble.style.height = '20px';
+      bubble.style.margin = '0 2px';
+      bubble.style.borderRadius = '50%';
+      bubble.style.border = '2px solid #6366f1';
+      bubble.style.background = i <= value ? '#6366f1' : 'transparent';
+      bubble.style.transition = 'background 0.2s';
+      wrapper.appendChild(bubble);
+    }
+    // Plus button
+    const plusBtn = document.createElement('button');
+    plusBtn.textContent = '+';
+    plusBtn.style.marginLeft = '8px';
+    plusBtn.disabled = value >= max || remaining <= 0;
+    plusBtn.onclick = () => {
+      if (value < max && remaining > 0) {
+        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = value + 1;
+        renderSkillSliders(poke);
+      }
+    };
+    wrapper.appendChild(plusBtn);
+    // Label
+    const label = document.createElement('span');
+    label.textContent = ` ${attr.label} (${value} / ${max})`;
+    label.style.marginLeft = '12px';
+    label.style.fontWeight = '600';
     wrapper.appendChild(label);
-    wrapper.appendChild(slider);
     grid.appendChild(wrapper);
   });
   section.appendChild(grid);

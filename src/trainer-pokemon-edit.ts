@@ -2,6 +2,7 @@ import { Trainer, TrainerPokemon } from './trainer.js';
 import { Pokemon, RecommendedRank, RecommendedRanks, RecommendedRankInfo } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
 import { Move } from './move.js';
+import { createMoveCard, createMoveNotFoundCard } from './moveComponent.js';
 
 let allTrainers: Trainer[] = [];
 let allPokemon: Pokemon[] = [];
@@ -433,8 +434,9 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
     moveDetailsDiv.style.marginLeft = '32px';
     moveDetailsDiv.style.display = 'inline-block';
     moveDetailsDiv.style.verticalAlign = 'top';
-    moveDetailsDiv.style.maxWidth = '220px';
+    moveDetailsDiv.style.maxWidth = '420px';
     moveDetailsDiv.style.minWidth = '180px';
+    moveDetailsDiv.style.display = 'none'; // Initially hidden
     wrapper.appendChild(moveDetailsDiv);
   } else {
     moveDetailsDiv.innerHTML = '';
@@ -444,23 +446,6 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
       wrapper.appendChild(moveDetailsDiv);
     }
   }
-
-  // Attach click listeners to moves in the card
-  setTimeout(() => {
-    const moveEls = pokeInfoDiv.querySelectorAll('[data-move-name]');
-    moveEls.forEach(el => {
-      el.addEventListener('click', () => {
-        const moveName = el.getAttribute('data-move-name');
-        if (!moveName) return;
-        // Show move details card with move name as title
-        moveDetailsDiv!.innerHTML = `
-          <div style="background:#eef2ff;padding:18px 24px;border-radius:10px;box-shadow:0 2px 8px #0001;min-width:260px;max-width:340px;">
-            <div style="font-size:1.3em;font-weight:700;color:#3730a3;margin-bottom:8px;">${moveName}</div>
-          </div>
-        `;
-      });
-    });
-  }, 0);
 
   // Responsive layout for poke-info-wrapper
   const trainerForm = document.querySelector('.trainer-pokemon-form') as HTMLElement | null;
@@ -513,23 +498,14 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
             const moveName = el.getAttribute('data-move-name');
             if (!moveName) return;
             const move = Array.isArray(moves) ? moves.find(m => m.Name === moveName) : undefined;
+            moveDetailsDiv.style.display = 'flex';
             if (!move) {
-              moveDetailsDiv!.innerHTML = `<div style=\"background:#eef2ff;padding:18px 24px;border-radius:10px;box-shadow:0 2px 8px #0001;min-width:260px;max-width:340px;\"><div style=\"font-size:1.3em;font-weight:700;color:#3730a3;margin-bottom:8px;\">${moveName}</div><div style=\"color:#b91c1c;font-size:0.95em;\">Move details not found.</div></div>`;
+              moveDetailsDiv!.innerHTML = '';
+              moveDetailsDiv!.appendChild(createMoveNotFoundCard(moveName));
               return;
             }
-            moveDetailsDiv!.innerHTML = `
-              <div style=\"background:#eef2ff;padding:18px 24px;border-radius:10px;box-shadow:0 2px 8px #0001;min-width:260px;max-width:340px;\">
-                <div style=\"font-size:1.3em;font-weight:700;color:#3730a3;margin-bottom:8px;\">${move.Name}</div>
-                <div style=\"margin-bottom:6px;\"><b>Type:</b> <span style=\"color:#2563eb;\">${move.Type}</span> &nbsp; <b>Category:</b> <span style=\"color:#7c3aed;\">${move.Category}</span></div>
-                <div style=\"margin-bottom:6px;\"><b>Power:</b> ${move.Power ?? '-'} &nbsp; <b>Target:</b> ${move.Target ?? '-'}</div>
-                <div style=\"margin-bottom:6px;\"><b>Accuracy:</b> ${move.Accuracy1 ?? '-'}${move.Accuracy2 ? ' / ' + move.Accuracy2 : ''}</div>
-                <div style=\"margin-bottom:6px;\"><b>Damage:</b> ${move.Damage1 ?? '-'}${move.Damage2 ? ' / ' + move.Damage2 : ''}</div>
-                <div style=\"margin-bottom:6px;\"><b>Description:</b> <span style=\"color:#334155;\">${move.Description ?? '-'}</span></div>
-                ${move.Effect ? `<div style=\"margin-bottom:6px;\"><b>Effect:</b> <span style=\"color:#334155;\">${move.Effect}</span></div>` : ''}
-                ${move.Attributes && Object.keys(move.Attributes).length > 0 ? `<div style=\"margin-bottom:6px;\"><b>Attributes:</b> <span style=\"color:#0e7490;\">${Object.entries(move.Attributes).filter(([k,v])=>v!==undefined&&v!==false).map(([k,v])=>k+(v===true?'':': '+v)).join(', ')}</span></div>` : ''}
-                ${move.AddedEffects && Object.keys(move.AddedEffects).length > 0 ? `<div style=\"margin-bottom:6px;\"><b>Added Effects:</b> <span style=\"color:#0e7490;\">${Object.entries(move.AddedEffects).filter(([k,v])=>v!==undefined&&v!==false&&v!==null&&(!(Array.isArray(v))||v.length>0)).map(([k,v])=>k+(typeof v==='object'&&!Array.isArray(v)?'':': '+JSON.stringify(v))).join(', ')}</span></div>` : ''}
-              </div>
-            `;
+            moveDetailsDiv!.innerHTML = '';
+            moveDetailsDiv!.appendChild(createMoveCard(move));
           });
         });
       }, 0);

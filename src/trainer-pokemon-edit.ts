@@ -72,20 +72,6 @@ type MaxKey = typeof attributeNames[number]['maxKey'];
 function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('attributes-section');
   if (!section) return;
-  // Inject responsive style for attribute sliders if not present
-  const styleId = 'attribute-slider-responsive-style';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-      @media (max-width: 700px) {
-        .attribute-slider-grid { grid-template-columns: 1fr !important; }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  // Add responsive class for grid
-  section.classList.add('responsive-slider-section');
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
   const allowed = rankInfo ? rankInfo.attributePoints : 1;
   let used = 0;
@@ -98,7 +84,6 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const remaining = allowed - used;
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='attr-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const grid = document.createElement('div');
-  grid.className = 'attribute-slider-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
@@ -182,20 +167,6 @@ type SocialMaxKey = typeof socialAttributeNames[number]['maxKey'];
 function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const section = document.getElementById('social-attributes-section');
   if (!section) return;
-  // Inject responsive style for social attribute sliders if not present
-  const styleId = 'social-attribute-slider-responsive-style';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-      @media (max-width: 700px) {
-        .social-attribute-slider-grid { grid-template-columns: 1fr !important; }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  // Add responsive class for grid
-  section.classList.add('responsive-slider-section');
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
   const allowed = rankInfo ? rankInfo.socialAttributePoints : 1;
   let used = 0;
@@ -206,7 +177,6 @@ function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   const remaining = allowed - used;
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Social Attributes <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='social-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const grid = document.createElement('div');
-  grid.className = 'social-attribute-slider-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
@@ -312,20 +282,6 @@ function getSkillMax(rank: string | undefined): number {
 function renderSkillSliders(poke: TrainerPokemon) {
   const section = document.getElementById('skills-section');
   if (!section) return;
-  // Inject responsive style for skill sliders if not present
-  const styleId = 'skill-slider-responsive-style';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-      @media (max-width: 700px) {
-        .skill-slider-grid { grid-template-columns: 1fr !important; }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-  // Add responsive class for grid
-  section.classList.add('responsive-slider-section');
   const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
   const allowed = rankInfo ? rankInfo.skillPoints : 1;
   let used = 0;
@@ -336,7 +292,6 @@ function renderSkillSliders(poke: TrainerPokemon) {
   section.innerHTML = `<div style="font-weight:600;color:#6366f1;margin-bottom:8px;">Skills <span style='font-weight:400;font-size:0.95em;color:#444;'>(Points left: <span id='skill-remaining' style='color:${remaining < 0 ? '#dc2626' : '#16a34a'}'>${remaining}</span> / ${allowed})</span></div>`;
   const max = rankInfo ? rankInfo.maxSkillPoints : 1;
   const grid = document.createElement('div');
-  grid.className = 'skill-slider-grid';
   grid.style.display = 'grid';
   grid.style.gridTemplateColumns = '1fr 1fr';
   grid.style.gap = '12px';
@@ -546,29 +501,40 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
       document.head.appendChild(style);
     }
   }
-}
 
-// Add a single <style> tag for responsive slider grids if not present
-(function ensureResponsiveSliderStyle() {
-  const styleId = 'responsive-slider-style';
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = `
-      .responsive-slider-section .slider-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-      }
-      @media (max-width: 700px) {
-        .responsive-slider-section .slider-grid {
-          grid-template-columns: 1fr !important;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-  }
-})();
+  // Additive: Fetch and display move details from /get-moves/:dexid
+  fetch(`/get-moves/${dexid}`)
+    .then(res => res.json())
+    .then((moves) => {
+      setTimeout(() => {
+        const moveEls = pokeInfoDiv.querySelectorAll('[data-move-name]');
+        moveEls.forEach(el => {
+          el.addEventListener('click', () => {
+            const moveName = el.getAttribute('data-move-name');
+            if (!moveName) return;
+            const move = Array.isArray(moves) ? moves.find(m => m.Name === moveName) : undefined;
+            if (!move) {
+              moveDetailsDiv!.innerHTML = `<div style=\"background:#eef2ff;padding:18px 24px;border-radius:10px;box-shadow:0 2px 8px #0001;min-width:260px;max-width:340px;\"><div style=\"font-size:1.3em;font-weight:700;color:#3730a3;margin-bottom:8px;\">${moveName}</div><div style=\"color:#b91c1c;font-size:0.95em;\">Move details not found.</div></div>`;
+              return;
+            }
+            moveDetailsDiv!.innerHTML = `
+              <div style=\"background:#eef2ff;padding:18px 24px;border-radius:10px;box-shadow:0 2px 8px #0001;min-width:260px;max-width:340px;\">
+                <div style=\"font-size:1.3em;font-weight:700;color:#3730a3;margin-bottom:8px;\">${move.Name}</div>
+                <div style=\"margin-bottom:6px;\"><b>Type:</b> <span style=\"color:#2563eb;\">${move.Type}</span> &nbsp; <b>Category:</b> <span style=\"color:#7c3aed;\">${move.Category}</span></div>
+                <div style=\"margin-bottom:6px;\"><b>Power:</b> ${move.Power ?? '-'} &nbsp; <b>Target:</b> ${move.Target ?? '-'}</div>
+                <div style=\"margin-bottom:6px;\"><b>Accuracy:</b> ${move.Accuracy1 ?? '-'}${move.Accuracy2 ? ' / ' + move.Accuracy2 : ''}</div>
+                <div style=\"margin-bottom:6px;\"><b>Damage:</b> ${move.Damage1 ?? '-'}${move.Damage2 ? ' / ' + move.Damage2 : ''}</div>
+                <div style=\"margin-bottom:6px;\"><b>Description:</b> <span style=\"color:#334155;\">${move.Description ?? '-'}</span></div>
+                ${move.Effect ? `<div style=\"margin-bottom:6px;\"><b>Effect:</b> <span style=\"color:#334155;\">${move.Effect}</span></div>` : ''}
+                ${move.Attributes && Object.keys(move.Attributes).length > 0 ? `<div style=\"margin-bottom:6px;\"><b>Attributes:</b> <span style=\"color:#0e7490;\">${Object.entries(move.Attributes).filter(([k,v])=>v!==undefined&&v!==false).map(([k,v])=>k+(v===true?'':': '+v)).join(', ')}</span></div>` : ''}
+                ${move.AddedEffects && Object.keys(move.AddedEffects).length > 0 ? `<div style=\"margin-bottom:6px;\"><b>Added Effects:</b> <span style=\"color:#0e7490;\">${Object.entries(move.AddedEffects).filter(([k,v])=>v!==undefined&&v!==false&&v!==null&&(!(Array.isArray(v))||v.length>0)).map(([k,v])=>k+(typeof v==='object'&&!Array.isArray(v)?'':': '+JSON.stringify(v))).join(', ')}</span></div>` : ''}
+              </div>
+            `;
+          });
+        });
+      }, 0);
+    });
+}
 
 let selectedTrainer: Trainer | undefined;
 let selectedPoke: TrainerPokemon | undefined;

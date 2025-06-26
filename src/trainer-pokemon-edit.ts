@@ -61,21 +61,20 @@ function showTrainerAndPokemonLabels(trainer: Trainer, poke: TrainerPokemon, pok
 
 
 function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
+  
   Object.values(AttributeType).forEach(type => {
-    let section = document.getElementById('attributes-section');
-    if(type = AttributeType.Social) {
-      let section = document.getElementById('social-attributes-section');
-    } else if(type = AttributeType.Skill) {
-      let section = document.getElementById('skills-section');
-    }
+    console.log(type);
+    let id = type == AttributeType.Attribute ? 'attributes-section' : 
+    type == AttributeType.Social ? 'social-attributes-section' : 'skills-section';
+    console.log(id)
+    let section = document.getElementById(id);
     if (!section) return;
     const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
     const allowed = rankInfo ? rankInfo.attributePoints : 1;
     let used = 0;
     const remaining = allowed - used;
     section.innerHTML = '';
-    console.log(poke);
-    const sliders = poke.attributes.filter((a) => a.type = AttributeType.Attribute).map(attr => {
+    const sliders = poke.attributes.filter((a) => a.type == type).map(attr => {
       const max = attr.max;
       const min = attr.min
       if (attr.value < min) attr.value = min;
@@ -136,7 +135,6 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
     poke.CurrentRank = RecommendedRank.Starter;
   }
   currentRankSelect.value = poke.CurrentRank;
-  console.log(poke, pokeData);
   // Render attribute sliders
   renderAttributeSliders(poke, pokeData);
   // Render social attribute sliders
@@ -286,7 +284,6 @@ fetch('/pokedex-list')
     const trainerName = params.get('trainer');
     const dexid = params.get('dexid');
     if (trainerName && dexid && selectedTrainer && selectedPoke) {
-      console.log(selectedTrainer);
       showPokemonInfo(selectedTrainer, dexid);
     }
   });

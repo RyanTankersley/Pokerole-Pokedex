@@ -47,14 +47,7 @@ export function createSlider(options: SliderOptions): HTMLDivElement {
   row.appendChild(minusBtn);
 
   // Bubbles
-  console.log("Start");
-  console.log(label);
-  console.log(value);
-  console.log(min);
-  console.log(max);
-  console.log("Loop");
   for (let i = 0; i < max; i++) {
-  console.log(i);
     const bubble = document.createElement('span');
     bubble.style.display = 'inline-block';
     bubble.style.width = '20px';

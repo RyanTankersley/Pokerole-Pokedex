@@ -1,34 +1,22 @@
 import { Pokemon, RecommendedRank } from './pokemon.js';
 
+export type AttributeType = 'attribute' | 'social' | 'skill';
+
+export interface PokemonAttribute {
+    type: AttributeType;
+    key: string; // e.g. 'Strength', 'Tough', 'Brawl'
+    label: string; // Human-readable label
+    value: number;
+    min: number;
+    max: number;
+}
+
 export interface TrainerPokemon {
     DexID: string;
     Number: number;
     Victories: number;
     CurrentRank?: RecommendedRank;
-    CurrentStrength?: number;
-    CurrentDexterity?: number;
-    CurrentVitality?: number;
-    CurrentSpecial?: number;
-    CurrentInsight?: number;
-    // Social attributes
-    CurrentTough?: number;
-    CurrentCool?: number;
-    CurrentBeauty?: number;
-    CurrentClever?: number;
-    CurrentCute?: number;
-    // Skill fields
-    SkillBrawl?: number;
-    SkillChannel?: number;
-    SkillClash?: number;
-    SkillEvasion?: number;
-    SkillAlert?: number;
-    SkillAthletic?: number;
-    SkillNature?: number;
-    SkillStealth?: number;
-    SkillAllure?: number;
-    SkillEtiquette?: number;
-    SkillIntimidate?: number;
-    SkillPerform?: number;
+    attributes: PokemonAttribute[];
 }
 
 export interface Trainer {
@@ -43,34 +31,39 @@ export interface Trainer {
 
 // Utility to convert a Pokemon to TrainerPokemon
 export function toTrainerPokemon(poke: Pokemon): TrainerPokemon {
+    // You may want to pull min/max from poke or game rules
+    const attributes: PokemonAttribute[] = [
+        // Core attributes
+        { type: 'attribute', key: 'Strength', label: 'Strength', value: 1, min: 1, max: 5 },
+        { type: 'attribute', key: 'Dexterity', label: 'Dexterity', value: 1, min: 1, max: 5 },
+        { type: 'attribute', key: 'Vitality', label: 'Vitality', value: 1, min: 1, max: 5 },
+        { type: 'attribute', key: 'Special', label: 'Special', value: 1, min: 1, max: 5 },
+        { type: 'attribute', key: 'Insight', label: 'Insight', value: 1, min: 1, max: 5 },
+        // Social attributes
+        { type: 'social', key: 'Tough', label: 'Tough', value: 1, min: 1, max: 5 },
+        { type: 'social', key: 'Cool', label: 'Cool', value: 1, min: 1, max: 5 },
+        { type: 'social', key: 'Beauty', label: 'Beauty', value: 1, min: 1, max: 5 },
+        { type: 'social', key: 'Clever', label: 'Clever', value: 1, min: 1, max: 5 },
+        { type: 'social', key: 'Cute', label: 'Cute', value: 1, min: 1, max: 5 },
+        // Skills
+        { type: 'skill', key: 'Brawl', label: 'Brawl', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Channel', label: 'Channel', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Clash', label: 'Clash', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Evasion', label: 'Evasion', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Alert', label: 'Alert', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Athletic', label: 'Athletic', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Nature', label: 'Nature', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Stealth', label: 'Stealth', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Allure', label: 'Allure', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Etiquette', label: 'Etiquette', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Intimidate', label: 'Intimidate', value: 1, min: 0, max: 5 },
+        { type: 'skill', key: 'Perform', label: 'Perform', value: 1, min: 0, max: 5 },
+    ];
     return {
         DexID: poke.DexID,
         Number: poke.Number,
         Victories: 0,
         CurrentRank: undefined,
-        CurrentStrength: 1,
-        CurrentDexterity: 1,
-        CurrentVitality: 1,
-        CurrentSpecial: 1,
-        CurrentInsight: 1,
-        // Social attributes
-        CurrentTough: 1,
-        CurrentCool: 1,
-        CurrentBeauty: 1,
-        CurrentClever: 1,
-        CurrentCute: 1,
-        // Skill fields
-        SkillBrawl: 1,
-        SkillChannel: 1,
-        SkillClash: 1,
-        SkillEvasion: 1,
-        SkillAlert: 1,
-        SkillAthletic: 1,
-        SkillNature: 1,
-        SkillStealth: 1,
-        SkillAllure: 1,
-        SkillEtiquette: 1,
-        SkillIntimidate: 1,
-        SkillPerform: 1
+        attributes
     };
 }

@@ -36,7 +36,9 @@ export interface Trainer {
 // Utility to convert a Pokemon to TrainerPokemon
 export function toTrainerPokemon(poke: Pokemon): TrainerPokemon {
     // You may want to pull min/max from poke or game rules
-    const attributes: PokemonAttribute[] = [
+    //Letting server handle the attributes
+    const attributes: PokemonAttribute[] = [];
+    /*[
         // Core attributes
         { type: AttributeType.Attribute, key: 'Strength', label: 'Strength', value: 1, min: poke.Strength, max: poke.MaxStrength },
         { type: AttributeType.Attribute, key: 'Dexterity', label: 'Dexterity', value: 1, min: poke.Dexterity, max: poke.MaxDexterity },
@@ -62,7 +64,8 @@ export function toTrainerPokemon(poke: Pokemon): TrainerPokemon {
         { type: AttributeType.Skill, key: 'Etiquette', label: 'Etiquette', value: 1, min: 0, max: 5 },
         { type: AttributeType.Skill, key: 'Intimidate', label: 'Intimidate', value: 1, min: 0, max: 5 },
         { type: AttributeType.Skill, key: 'Perform', label: 'Perform', value: 1, min: 0, max: 5 },
-    ];
+    ];*/
+
     return {
         DexID: poke.DexID,
         Number: poke.Number,

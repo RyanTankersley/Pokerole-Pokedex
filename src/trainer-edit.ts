@@ -120,6 +120,8 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStatus.style.color = '#dc2626';
       return;
     }
+
+    console.log(selectedPokemon);
     // Save logic: Send to server
     const trainerObj: TrainerForm = {
       trainer: {

@@ -62,30 +62,32 @@ app.post('/save-trainer', async (req, res) => {
     }
     // If OriginalName is provided and different, update by OriginalName
     const queryName = OriginalName && OriginalName !== trainer.Name ? OriginalName : trainer.Name;
+    const pokemonDocs = [];
+    for (const p of trainer.Pokemon) {
+      console.log(p);
+      let attributes = Array.isArray(p.attributes) && p.attributes.length > 0
+        ? p.attributes.map(attr => ({
+            type: attr.type,
+            key: attr.key,
+            label: attr.label,
+            value: typeof attr.value === 'number' ? attr.value : 0,
+            min: typeof attr.min === 'number' ? attr.min : 0,
+            max: typeof attr.max === 'number' ? attr.max : 0
+          }))
+        : await getDefaultAttributes(p); // fallback to defaults, now async
+      pokemonDocs.push({
+        DexID: p.DexID || '',
+        Number: typeof p.Number === 'number' ? p.Number : 0,
+        Victories: typeof p.Victories === 'number' ? p.Victories : 0,
+        CurrentRank: p.CurrentRank || '',
+        attributes
+      });
+    }
     await Trainer.findOneAndUpdate(
       { Name: queryName },
       {
         Name: trainer.Name,
-        Pokemon: trainer.Pokemon.map(p => {
-          // If no attributes, fill with defaults (try to use pokeData from allPokemon if available)
-          let attributes = Array.isArray(p.attributes) && p.attributes.length > 0
-            ? p.attributes.map(attr => ({
-                type: attr.type,
-                key: attr.key,
-                label: attr.label,
-                value: typeof attr.value === 'number' ? attr.value : 0,
-                min: typeof attr.min === 'number' ? attr.min : 0,
-                max: typeof attr.max === 'number' ? attr.max : 0
-              }))
-            : getDefaultAttributes(p); // fallback to defaults
-          return {
-            DexID: p.DexID || '',
-            Number: typeof p.Number === 'number' ? p.Number : 0,
-            Victories: typeof p.Victories === 'number' ? p.Victories : 0,
-            CurrentRank: p.CurrentRank || '',
-            attributes
-          };
-        }),
+        Pokemon: pokemonDocs,
         ImageURL: trainer.ImageURL || '',
         Rank: trainer.Rank || '',
         Money: typeof trainer.Money === 'number' ? trainer.Money : 0,
@@ -363,20 +365,39 @@ app.get('/get-moves/:dexid', async (req, res) => {
   }
 });
 
+// GET /pokedex/:dexid - returns a single Pokémon from the Pokedex collection by DexID
+app.get('/pokedex/:dexid', async (req, res) => {
+  try {
+    const dexid = req.params.dexid;
+    const pokemon = await PokemonModel.findOne({ DexID: dexid }).lean();
+    if (!pokemon) {
+      return res.status(404).json({ error: 'Pokémon not found.' });
+    }
+    res.json(pokemon);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch Pokémon.' });
+  }
+});
+
 app.listen(3000, () => {
   console.log('Server running at http://localhost:3000');
 });
 
 // Helper: get default attributes for a TrainerPokemon (mirrors trainer.ts)
-function getDefaultAttributes(poke) {
-  // Use fallback values if poke is missing fields
+async function getDefaultAttributes(poke) {
+  // Try to get the full pokedex entry for this DexID
+  let dexData = null;
+  if (poke && poke.DexID) {
+    dexData = await PokemonModel.findOne({ DexID: poke.DexID }).lean();
+  }
+  // Use fallback values if dexData is missing fields
   return [
     // Core attributes
-    { type: 'Attribute', key: 'Strength', label: 'Strength', value: 1, min: poke?.Strength ?? 1, max: poke?.MaxStrength ?? 5 },
-    { type: 'Attribute', key: 'Dexterity', label: 'Dexterity', value: 1, min: poke?.Dexterity ?? 1, max: poke?.MaxDexterity ?? 5 },
-    { type: 'Attribute', key: 'Vitality', label: 'Vitality', value: 1, min: poke?.Vitality ?? 1, max: poke?.MaxVitality ?? 5 },
-    { type: 'Attribute', key: 'Special', label: 'Special', value: 1, min: poke?.Special ?? 1, max: poke?.MaxSpecial ?? 5 },
-    { type: 'Attribute', key: 'Insight', label: 'Insight', value: 1, min: poke?.Insight ?? 1, max: poke?.MaxInsight ?? 5 },
+    { type: 'Attribute', key: 'Strength', label: 'Strength', value: 1, min: dexData?.Strength ?? 1, max: dexData?.MaxStrength ?? 5 },
+    { type: 'Attribute', key: 'Dexterity', label: 'Dexterity', value: 1, min: dexData?.Dexterity ?? 1, max: dexData?.MaxDexterity ?? 5 },
+    { type: 'Attribute', key: 'Vitality', label: 'Vitality', value: 1, min: dexData?.Vitality ?? 1, max: dexData?.MaxVitality ?? 5 },
+    { type: 'Attribute', key: 'Special', label: 'Special', value: 1, min: dexData?.Special ?? 1, max: dexData?.MaxSpecial ?? 5 },
+    { type: 'Attribute', key: 'Insight', label: 'Insight', value: 1, min: dexData?.Insight ?? 1, max: dexData?.MaxInsight ?? 5 },
     // Social attributes
     { type: 'Social', key: 'Tough', label: 'Tough', value: 1, min: 1, max: 5 },
     { type: 'Social', key: 'Cool', label: 'Cool', value: 1, min: 1, max: 5 },
@@ -384,17 +405,17 @@ function getDefaultAttributes(poke) {
     { type: 'Social', key: 'Clever', label: 'Clever', value: 1, min: 1, max: 5 },
     { type: 'Social', key: 'Cute', label: 'Cute', value: 1, min: 1, max: 5 },
     // Skills
-    { type: 'Skill', key: 'Brawl', label: 'Brawl', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Channel', label: 'Channel', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Clash', label: 'Clash', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Evasion', label: 'Evasion', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Alert', label: 'Alert', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Athletic', label: 'Athletic', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Nature', label: 'Nature', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Stealth', label: 'Stealth', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Allure', label: 'Allure', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Etiquette', label: 'Etiquette', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Intimidate', label: 'Intimidate', value: 1, min: 0, max: 5 },
-    { type: 'Skill', key: 'Perform', label: 'Perform', value: 1, min: 0, max: 5 },
+    { type: 'Skill', key: 'Brawl', label: 'Brawl', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Channel', label: 'Channel', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Clash', label: 'Clash', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Evasion', label: 'Evasion', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Alert', label: 'Alert', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Athletic', label: 'Athletic', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Nature', label: 'Nature', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Stealth', label: 'Stealth', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Allure', label: 'Allure', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Etiquette', label: 'Etiquette', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Intimidate', label: 'Intimidate', value: 0, min: 0, max: 1 },
+    { type: 'Skill', key: 'Perform', label: 'Perform', value: 0, min: 0, max: 1 },
   ];
 }

@@ -1,5 +1,5 @@
-import { Trainer, TrainerPokemon } from './trainer.js';
-import { Pokemon, RecommendedRank, RecommendedRanks, RecommendedRankInfo } from './pokemon.js';
+import { Trainer, TrainerPokemon, AttributeType } from './trainer.js';
+import { Pokemon, RecommendedRank, RecommendedRanks } from './pokemon.js';
 import { createPokemonCard } from './domComponents.js';
 import { createMoveCard, createMoveNotFoundCard } from './moveComponent.js';
 import { createSliderSection } from './sliderSectionComponent.js';
@@ -59,165 +59,49 @@ function showTrainerAndPokemonLabels(trainer: Trainer, poke: TrainerPokemon, pok
   `;
 }
 
-// Helper types for attribute keys
-const attributeNames = [
-  { key: 'CurrentStrength', label: 'Strength', maxKey: 'MaxStrength' },
-  { key: 'CurrentDexterity', label: 'Dexterity', maxKey: 'MaxDexterity' },
-  { key: 'CurrentVitality', label: 'Vitality', maxKey: 'MaxVitality' },
-  { key: 'CurrentSpecial', label: 'Special', maxKey: 'MaxSpecial' },
-  { key: 'CurrentInsight', label: 'Insight', maxKey: 'MaxInsight' }
-] as const;
 
 function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
-  const section = document.getElementById('attributes-section');
-  if (!section) return;
-  const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
-  const allowed = rankInfo ? rankInfo.attributePoints : 1;
-  let used = 0;
-  attributeNames.forEach(attr => {
-    const minKey = attr.label;
-    const min = typeof (pokeData as any)[minKey] === 'number' ? (pokeData as any)[minKey] : 1;
-    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : min;
-    used += Math.max(0, value - min);
-  });
-  const remaining = allowed - used;
-  section.innerHTML = '';
-  const sliders = attributeNames.map(attr => {
-    const max = pokeData[attr.maxKey as keyof Pokemon] as number || 5;
-    const minKey = attr.label;
-    const min = typeof (pokeData as any)[minKey] === 'number' ? (pokeData as any)[minKey] : 1;
-    let value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : min;
-    if (value < min) value = min;
-    return {
-      label: attr.label,
-      value,
-      min,
-      max,
+  Object.values(AttributeType).forEach(type => {
+    let section = document.getElementById('attributes-section');
+    if(type = AttributeType.Social) {
+      let section = document.getElementById('social-attributes-section');
+    } else if(type = AttributeType.Skill) {
+      let section = document.getElementById('skills-section');
+    }
+    if (!section) return;
+    const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
+    const allowed = rankInfo ? rankInfo.attributePoints : 1;
+    let used = 0;
+    const remaining = allowed - used;
+    section.innerHTML = '';
+    console.log(poke);
+    const sliders = poke.attributes.filter((a) => a.type = AttributeType.Attribute).map(attr => {
+      const max = attr.max;
+      const min = attr.min
+      if (attr.value < min) attr.value = min;
+      let value = attr.value
+      return {
+        label: attr.label,
+        value,
+        min,
+        max,
+        remaining,
+        onChange: (newValue: number) => {
+          (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
+          renderAttributeSliders(poke, pokeData);
+        },
+        disabled: false
+      };
+    });
+    section.appendChild(createSliderSection({
+      sectionLabel: type.toString(),
+      sliders,
+      columns: 2,
+      remainingLabel: 'Points left',
       remaining,
-      onChange: (newValue: number) => {
-        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
-        renderAttributeSliders(poke, pokeData);
-      },
-      disabled: false
-    };
-  });
-  section.appendChild(createSliderSection({
-    sectionLabel: 'Attributes',
-    sliders,
-    columns: 2,
-    remainingLabel: 'Points left',
-    remaining,
-    allowed,
-  }));
-}
-
-// Social attribute slider config
-const socialAttributeNames = [
-  { key: 'CurrentTough', label: 'Tough', maxKey: 'MaxTough' },
-  { key: 'CurrentCool', label: 'Cool', maxKey: 'MaxCool' },
-  { key: 'CurrentBeauty', label: 'Beauty', maxKey: 'MaxBeauty' },
-  { key: 'CurrentClever', label: 'Clever', maxKey: 'MaxClever' },
-  { key: 'CurrentCute', label: 'Cute', maxKey: 'MaxCute' }
-] as const;
-
-function renderSocialAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
-  const section = document.getElementById('social-attributes-section');
-  if (!section) return;
-  const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
-  const allowed = rankInfo ? rankInfo.socialAttributePoints : 1;
-  let used = 0;
-  socialAttributeNames.forEach(attr => {
-    const value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
-    used += Math.max(0, value - 1);
-  });
-  const remaining = allowed - used;
-  section.innerHTML = '';
-  const sliders = socialAttributeNames.map(attr => {
-    const max = 5;
-    let value = typeof poke[attr.key as keyof TrainerPokemon] === 'number' ? poke[attr.key as keyof TrainerPokemon] as number : 1;
-    if (value < 1) value = 1;
-    return {
-      label: attr.label,
-      value,
-      min: 1,
-      max,
-      remaining,
-      onChange: (newValue: number) => {
-        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
-        renderSocialAttributeSliders(poke, pokeData);
-      },
-      disabled: false
-    };
-  });
-  section.appendChild(createSliderSection({
-    sectionLabel: 'Social Attributes',
-    sliders,
-    columns: 2,
-    remainingLabel: 'Points left',
-    remaining,
-    allowed,
-  }));
-}
-
-// Skills slider config
-const skillNames = [
-  { key: 'SkillBrawl', label: 'Brawl' },
-  { key: 'SkillChannel', label: 'Channel' },
-  { key: 'SkillClash', label: 'Clash' },
-  { key: 'SkillEvasion', label: 'Evasion' },
-  { key: 'SkillAlert', label: 'Alert' },
-  { key: 'SkillAthletic', label: 'Athletic' },
-  { key: 'SkillNature', label: 'Nature' },
-  { key: 'SkillStealth', label: 'Stealth' },
-  { key: 'SkillAllure', label: 'Allure' },
-  { key: 'SkillEtiquette', label: 'Etiquette' },
-  { key: 'SkillIntimidate', label: 'Intimidate' },
-  { key: 'SkillPerform', label: 'Perform' }
-] as const;
-type SkillKey = typeof skillNames[number]['key'];
-
-// Helper for getting a skill value, defaulting to 0
-function getSkillValue(poke: TrainerPokemon, key: SkillKey): number {
-  const val = poke[key];
-  return typeof val === 'number' ? val : 0;
-}
-
-function renderSkillSliders(poke: TrainerPokemon) {
-  const section = document.getElementById('skills-section');
-  if (!section) return;
-  const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
-  const allowed = rankInfo ? rankInfo.skillPoints : 1;
-  let used = 0;
-  skillNames.forEach(attr => {
-    used += getSkillValue(poke, attr.key);
-  });
-  const remaining = allowed - used;
-  section.innerHTML = '';
-  const max = rankInfo ? rankInfo.maxSkillPoints : 1;
-  const sliders = skillNames.map(attr => {
-    let value = getSkillValue(poke, attr.key);
-    if (typeof value !== 'number' || value < 0) value = 0;
-    return {
-      label: attr.label,
-      value,
-      min: 0,
-      max,
-      remaining,
-      onChange: (newValue: number) => {
-        (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
-        renderSkillSliders(poke);
-      },
-      disabled: false
-    };
-  });
-  section.appendChild(createSliderSection({
-    sectionLabel: 'Skills',
-    sliders,
-    columns: 2,
-    remainingLabel: 'Points left',
-    remaining,
-    allowed,
-  }));
+      allowed,
+    }));
+  })
 }
 
 // Update skill sliders when rank changes
@@ -229,9 +113,7 @@ currentRankSelect.addEventListener('change', () => {
     if (pokeData) {
       // Update attributes, social attributes, and skills based on new rank
       renderAttributeSliders(selectedPoke, pokeData);
-      renderSocialAttributeSliders(selectedPoke, pokeData);
     }
-    renderSkillSliders(selectedPoke);
   }
 });
 
@@ -254,12 +136,11 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
     poke.CurrentRank = RecommendedRank.Starter;
   }
   currentRankSelect.value = poke.CurrentRank;
+  console.log(poke, pokeData);
   // Render attribute sliders
   renderAttributeSliders(poke, pokeData);
   // Render social attribute sliders
-  renderSocialAttributeSliders(poke, pokeData);
   // Render skill sliders
-  renderSkillSliders(poke);
 
   // --- Move Details Card Feature ---
   // Ensure wrapper exists for side-by-side layout
@@ -405,6 +286,7 @@ fetch('/pokedex-list')
     const trainerName = params.get('trainer');
     const dexid = params.get('dexid');
     if (trainerName && dexid && selectedTrainer && selectedPoke) {
+      console.log(selectedTrainer);
       showPokemonInfo(selectedTrainer, dexid);
     }
   });

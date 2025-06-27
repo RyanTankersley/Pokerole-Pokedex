@@ -261,7 +261,7 @@ function showPokemonInfo(trainer: Trainer, dexid: string) {
               return;
             }
             moveDetailsDiv!.innerHTML = '';
-            moveDetailsDiv!.appendChild(createMoveCard(move));
+            moveDetailsDiv!.appendChild(createMoveCard(move, poke));
           });
         });
       }, 0);

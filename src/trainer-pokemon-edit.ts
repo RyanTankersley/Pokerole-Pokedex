@@ -63,19 +63,33 @@ function showTrainerAndPokemonLabels(trainer: Trainer, poke: TrainerPokemon, pok
 function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
   
   Object.values(AttributeType).forEach(type => {
-    console.log(type);
     let id = type == AttributeType.Attribute ? 'attributes-section' : 
     type == AttributeType.Social ? 'social-attributes-section' : 'skills-section';
-    console.log(id)
     let section = document.getElementById(id);
     if (!section) return;
     const rankInfo = poke.CurrentRank ? RecommendedRanks[poke.CurrentRank as RecommendedRank] : undefined;
-    const allowed = rankInfo ? rankInfo.attributePoints : 1;
-    let used = 0;
+    let allowed = 0;
+    if (rankInfo) {
+      switch(type) {
+        case AttributeType.Attribute:
+          console.log(rankInfo.attributePoints);
+          allowed = rankInfo?.attributePoints;
+          break;
+        case AttributeType.Social:
+          allowed = rankInfo?.socialAttributePoints;
+          break;
+        case AttributeType.Skill:
+          allowed = rankInfo?.skillPoints;
+          break;
+        default:
+          return; // Skip unknown types
+      }
+    }
+    let used = poke.attributes.filter((a) => a.type === type && a.value > a.min).map((a) => a.value - a.min).reduce((sum, val) => sum + val, 0);
     const remaining = allowed - used;
     section.innerHTML = '';
     const sliders = poke.attributes.filter((a) => a.type == type).map(attr => {
-      const max = attr.max;
+      const max = attr.type == AttributeType.Skill ? (rankInfo ? rankInfo.maxSkillPoints : 1) : attr.max;
       const min = attr.min
       if (attr.value < min) attr.value = min;
       let value = attr.value
@@ -86,7 +100,9 @@ function renderAttributeSliders(poke: TrainerPokemon, pokeData: Pokemon) {
         max,
         remaining,
         onChange: (newValue: number) => {
-          (poke[attr.key as keyof TrainerPokemon] as number | undefined) = newValue;
+          //Set new value here
+          const item = poke.attributes.find(a => a.label === attr.label && a.type === type);
+          if (item) { item.value = newValue; }
           renderAttributeSliders(poke, pokeData);
         },
         disabled: false

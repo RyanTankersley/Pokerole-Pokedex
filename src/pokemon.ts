@@ -240,7 +240,7 @@ export const RecommendedRanks: Record<RecommendedRank, RecommendedRankInfo> = {
         number: 7,
         skillPoints: 13,
         attributePoints: 14,
-        socialAttributePoints: 13,
+        socialAttributePoints: 14,
         maxSkillPoints: 5
     }
 }

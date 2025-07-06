@@ -10,7 +10,6 @@ fetch('/trainer-list')
 
     // Collect all unique dex ids of all the pokemon of all the trainers
     const trainerDexIds = new Set<string>();
-    console.log(trainers);
     trainers.forEach(trainer => {
       const t = trainer as Trainer;
       if (t.IsPlayerCharacter && Array.isArray(t.Pokemon)) {
@@ -41,13 +40,17 @@ fetch('/trainer-list')
           });
         }
 
+        // Detect if we are on the print page
+        const isPrintPage = window.location.pathname.endsWith('pokedex-print.html');
+
         function renderCards(showTrainerOnly: boolean, typeFilter: string = '', nameFilter: string = '', rankFilterVal: string = '') {
           if (!pokedexDiv) return;
           pokedexDiv.innerHTML = '';
           pokemonArray.slice(1, pokemonArray.length).forEach((pokemon: Pokemon) => {
             const isTrainerPokemon = trainerDexIds.has(pokemon.DexID);
             let showDetails = true;
-            if (showTrainerOnly && !isTrainerPokemon) showDetails = false;
+            // Force showTrainerOnly to true if on print page
+            if ((isPrintPage || showTrainerOnly) && !isTrainerPokemon) showDetails = false;
 
             // Type filter
             if (
@@ -77,8 +80,8 @@ fetch('/trainer-list')
           });
         }
 
-        // Initial render: show all details
-        renderCards(false);
+        // Initial render: show all details or only trainer if print page
+        renderCards(isPrintPage);
 
         // Add event listeners for radio buttons and filters
         const showAllRadio = document.getElementById('show-all') as HTMLInputElement;
@@ -97,7 +100,8 @@ fetch('/trainer-list')
 
         function rerender() {
           const { showTrainerOnly, type, rank, name } = getCurrentFilters();
-          renderCards(showTrainerOnly, type, name, rank);
+          // Force showTrainerOnly to true if on print page
+          renderCards(isPrintPage ? true : showTrainerOnly, type, name, rank);
         }
 
         if (showAllRadio && showTrainerRadio) {

@@ -64,7 +64,6 @@ app.post('/save-trainer', async (req, res) => {
     const queryName = OriginalName && OriginalName !== trainer.Name ? OriginalName : trainer.Name;
     const pokemonDocs = [];
     for (const p of trainer.Pokemon) {
-      console.log(p);
       let attributes = Array.isArray(p.attributes) && p.attributes.length > 0
         ? p.attributes.map(attr => ({
             type: attr.type,
@@ -107,6 +106,7 @@ app.post('/save-trainer', async (req, res) => {
 });
 
 app.get('/pokedex-list', (req, res) => {
+  console.log('Fetching Pokedex list from directory:', pokedexDir);
     fs.readdir(pokedexDir, (err, files) => {
         if (err) return res.status(500).send('Error reading directory');
         const jsonFiles = files.filter(f => f.endsWith('.json'));

@@ -21,6 +21,7 @@ export interface TrainerPokemon {
     Victories: number;
     CurrentRank?: RecommendedRank;
     attributes: PokemonAttribute[];
+    currentHealth?: number; // Add currentHealth property
 }
 
 export interface Trainer {
@@ -71,6 +72,7 @@ export function toTrainerPokemon(poke: Pokemon): TrainerPokemon {
         Number: poke.Number,
         Victories: 0,
         CurrentRank: undefined,
-        attributes
+        attributes,
+        currentHealth: poke.BaseHP || 10 // Default to BaseHP or 10
     };
 }

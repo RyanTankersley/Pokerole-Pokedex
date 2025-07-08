@@ -43,39 +43,65 @@ fetch('/trainer-list')
         // Detect if we are on the print page
         const isPrintPage = window.location.pathname.endsWith('pokedex-print.html');
 
+        // Track selected Pokémon DexIDs
+        const selectedDexIds = new Set<string>();
+
         function renderCards(showTrainerOnly: boolean, typeFilter: string = '', nameFilter: string = '', rankFilterVal: string = '') {
           if (!pokedexDiv) return;
           pokedexDiv.innerHTML = '';
-          pokemonArray.slice(1, pokemonArray.length).forEach((pokemon: Pokemon) => {
+          // Always show selected Pokémon, even if they don't match filters
+          const selectedPokemon = pokemonArray.filter(p => selectedDexIds.has(p.DexID));
+          // Filtered Pokémon (excluding already selected)
+          const filtered = pokemonArray.slice(1).filter((pokemon: Pokemon) => {
+            if (selectedDexIds.has(pokemon.DexID)) return false; // already included
             const isTrainerPokemon = trainerDexIds.has(pokemon.DexID);
             let showDetails = true;
-            // Force showTrainerOnly to true if on print page
             if ((isPrintPage || showTrainerOnly) && !isTrainerPokemon) showDetails = false;
-
-            // Type filter
             if (
               typeFilter &&
               pokemon.Type1 !== typeFilter &&
               pokemon.Type2 !== typeFilter
             ) {
-              return;
+              return false;
             }
-            // Rank filter
             if (
               rankFilterVal &&
               pokemon.RecommendedRank !== rankFilterVal
             ) {
-              return;
+              return false;
             }
-            // Name filter (case-insensitive, partial match)
             if (
               nameFilter &&
               !pokemon.Name.toLowerCase().includes(nameFilter.toLowerCase())
             ) {
-              return;
+              return false;
             }
-
+            return true;
+          });
+          // Render selected Pokémon first
+          selectedPokemon.forEach((pokemon: Pokemon) => {
+            const card = createPokemonCard(pokemon, { showDetails: true });
+            if (!isPrintPage) {
+              card.style.outline = '3px solid #f59e42';
+              card.style.boxShadow = '0 0 0 3px #fde68a';
+              card.style.background = '#fffbe6';
+            }
+            card.addEventListener('click', () => {
+              selectedDexIds.delete(pokemon.DexID);
+              rerender();
+            });
+            pokedexDiv.appendChild(card);
+          });
+          // Then render filtered Pokémon
+          filtered.forEach((pokemon: Pokemon) => {
+            const isTrainerPokemon = trainerDexIds.has(pokemon.DexID);
+            let showDetails = true;
+            if ((isPrintPage || showTrainerOnly) && !isTrainerPokemon) showDetails = false;
             const card = createPokemonCard(pokemon, { showDetails });
+            card.addEventListener('click', () => {
+              selectedDexIds.add(pokemon.DexID);
+              rerender();
+            });
             pokedexDiv.appendChild(card);
           });
         }

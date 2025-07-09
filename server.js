@@ -32,6 +32,7 @@ const trainerSchema = new mongoose.Schema({
       DexID: String,
       Number: Number,
       Victories: { type: Number, default: 0 },
+      SuccessfulTrainings: { type: Number, default: 0 }, // New property
       CurrentRank: String,
       // Store all attributes as an array of objects
       attributes: [
@@ -78,6 +79,7 @@ app.post('/save-trainer', async (req, res) => {
         DexID: p.DexID || '',
         Number: typeof p.Number === 'number' ? p.Number : 0,
         Victories: typeof p.Victories === 'number' ? p.Victories : 0,
+        SuccessfulTrainings: typeof p.SuccessfulTrainings === 'number' ? p.SuccessfulTrainings : 0, // Handle new property
         CurrentRank: p.CurrentRank || '',
         attributes
       });
@@ -169,6 +171,7 @@ app.get('/trainer-list', async (req, res) => {
             DexID: p.DexID,
             Number: p.Number,
             Victories: typeof p.Victories === 'number' ? p.Victories : 0,
+            SuccessfulTrainings: typeof p.SuccessfulTrainings === 'number' ? p.SuccessfulTrainings : 0, // Handle new property
             CurrentRank: p.CurrentRank || '',
             // attributes: p.attributes || [], // Keep existing attributes if present
             attributes: Array.isArray(p.attributes) ? p.attributes.map(attr => ({

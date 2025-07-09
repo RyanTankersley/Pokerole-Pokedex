@@ -7,6 +7,7 @@ import { createSliderSection } from './sliderSectionComponent.js';
 let allTrainers: Trainer[] = [];
 let allPokemon: Pokemon[] = [];
 const victoryInput = document.getElementById('victory-count') as HTMLInputElement;
+const successfulTrainingsInput = document.getElementById('successful-trainings') as HTMLInputElement;
 const saveBtn = document.getElementById('save-victory') as HTMLButtonElement;
 const saveStatus = document.getElementById('save-status') as HTMLDivElement;
 const pokeInfoDiv = document.getElementById('poke-info') as HTMLDivElement;
@@ -285,6 +286,7 @@ fetch('/trainer-list')
         selectedPoke = selectedTrainer.Pokemon.find(p => p.DexID === dexid);
         if (selectedPoke) {
           victoryInput.value = String(selectedPoke.Victories ?? 0);
+          successfulTrainingsInput.value = String(selectedPoke.SuccessfulTrainings ?? 0);
           currentRankSelect.value = selectedPoke.CurrentRank || '';
         }
       }
@@ -304,7 +306,15 @@ fetch('/pokedex-list')
     }
   });
 
-saveBtn.onclick = () => {
+// When loading a TrainerPokemon, set the input value
+function loadTrainerPokemon(poke: TrainerPokemon) {
+  victoryInput.value = String(poke.Victories ?? 0);
+  successfulTrainingsInput.value = String(poke.SuccessfulTrainings ?? 0);
+  currentRankSelect.value = poke.CurrentRank || '';
+  renderAttributeSliders(poke, allPokemon.find(p => p.DexID === poke.DexID)!);
+}
+
+saveBtn.addEventListener('click', async () => {
   if (!selectedTrainer) {
     saveStatus.textContent = 'Select a trainer.';
     saveStatus.style.color = '#dc2626';
@@ -315,7 +325,10 @@ saveBtn.onclick = () => {
     saveStatus.style.color = '#dc2626';
     return;
   }
-  selectedPoke.Victories = Number(victoryInput.value) || 0;
+  const victories = Number(victoryInput.value) || 0;
+  const successfulTrainings = Number(successfulTrainingsInput.value) || 0;
+  selectedPoke.Victories = victories;
+  selectedPoke.SuccessfulTrainings = successfulTrainings;
   selectedPoke.CurrentRank = currentRankSelect.value as RecommendedRank || undefined;
   // Attribute values are already updated by slider events
   // Save the updated trainer
@@ -337,4 +350,4 @@ saveBtn.onclick = () => {
       saveStatus.textContent = 'Failed to save.';
       saveStatus.style.color = '#dc2626';
     });
-};
+});

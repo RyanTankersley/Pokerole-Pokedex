@@ -15,11 +15,6 @@ export interface PokemonAttribute {
     max: number;
 }
 
-export interface TrainerPokedexPokemon {
-    TrainerPokemon: TrainerPokemon;
-    PokedexPokemon: Pokemon;
-}
-
 export interface TrainerPokemon {
     DexID: string;
     Number: number;
@@ -27,6 +22,7 @@ export interface TrainerPokemon {
     CurrentRank?: RecommendedRank;
     attributes: PokemonAttribute[];
     currentHealth?: number; // Add currentHealth property
+    PokedexInfo?: Pokemon;
 }
 
 export interface Trainer {

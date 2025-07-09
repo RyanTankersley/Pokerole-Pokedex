@@ -106,7 +106,6 @@ app.post('/save-trainer', async (req, res) => {
 });
 
 app.get('/pokedex-list', (req, res) => {
-  console.log('Fetching Pokedex list from directory:', pokedexDir);
     fs.readdir(pokedexDir, (err, files) => {
         if (err) return res.status(500).send('Error reading directory');
         const jsonFiles = files.filter(f => f.endsWith('.json'));

@@ -15,6 +15,11 @@ export interface PokemonAttribute {
     max: number;
 }
 
+export interface TrainerPokedexPokemon {
+    TrainerPokemon: TrainerPokemon;
+    PokedexPokemon: Pokemon;
+}
+
 export interface TrainerPokemon {
     DexID: string;
     Number: number;
